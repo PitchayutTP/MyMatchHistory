@@ -1,29 +1,26 @@
 <script setup>
 import { ref } from "vue";
 import TextInput from "../components/textinput.vue";
-// ตรวจสอบ path ให้ถูกต้อง
 import bgImage from "../assets/tennis.jpg";
 
-const email = ref("");
+const username = ref("");
 const password = ref("");
 
 const handleLogin = (event) => {
   event.preventDefault();
-  console.log("Email:", email.value);
+  console.log("Username:", username.value);
   console.log("Password:", password.value);
 };
 </script>
-
 <template>
   <div class="h-screen flex flex-col">
-    <!-- รอใส่ nav เสี่ย -->
-    <nav class="bg-gray-100 h-20"></nav>
+    <nav class="bg-white-100 h-20"></nav>
 
     <div
-      class="flex-1 flex items-center justify-center bg-white relative pr-[25%]"
-    >
+      class="flex-1 flex items-center justify-center relative" 
+      >
       <div
-        class="absolute z-0 top-1/2 -translate-y-1/2 left-0 w-full h-[500px] overflow-hidden mt-10"
+        class="absolute z-0 inset-0 w-full h-full overflow-hidden"
       >
         <img
           :src="bgImage"
@@ -35,14 +32,14 @@ const handleLogin = (event) => {
       <div
         class="relative z-10 p-10 w-sm h-120 rounded-sm max-w-md bg-white shadow-2xl"
       >
-        <h1 class="text-4xl mb-6 text-center text-black-800 mt-5">Login</h1>
+        <h1 class="text-4xl mb-6 text-center text-orange-600 mt-5">Login</h1>
 
         <form @submit="handleLogin">
           <TextInput
-            label="Email"
-            type="email"
-            placeholder="Enter your email"
-            v-model="email"
+            label="Username"
+            type="text"
+            placeholder="Enter your username"
+            v-model="username"
           />
 
           <TextInput
@@ -54,20 +51,20 @@ const handleLogin = (event) => {
           />
 
           <router-link
-            to="/register"
-            class="flex text-sm text-gray-500 hover:underline hover:text-blue-500 mt-1 justify-start-safe mb-5"
+            to="/resetpassword"
+            class="flex text-sm text-gray-500 hover:underline hover:text-orange-500 mt-1 justify-start-safe mb-5"
             >Forgot password?</router-link
           >
           <button
             type="submit"
-            class="w-full bg-blue-500 text-white py-2 rounded-sm hover:bg-blue-600 transition-colors mt-4"
+            class="w-full bg-orange-500 text-white py-2 rounded-sm hover:bg-orange-600 transition-colors mt-4"
           >
             Login
           </button>
         </form>
         <router-link
           to="/register"
-          class="flex text-sm text-gray-500 hover:underline hover:text-blue-500 mt-1 justify-end-safe"
+          class="flex text-sm text-gray-500 hover:underline hover:text-orange-500 mt-1 justify-end-safe"
           >Don't have an account? Register</router-link
         >
       </div>

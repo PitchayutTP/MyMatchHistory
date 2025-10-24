@@ -5,16 +5,13 @@ import bgImage from "../assets/tennis.jpg";
 
 const email = ref("");
 const password = ref("");
-const username = ref("");
 
-const handleRegister = (event) => {
+const handleLogin = (event) => {
   event.preventDefault();
-  console.log("Username:", username.value);
   console.log("Email:", email.value);
   console.log("Password:", password.value);
 };
 </script>
-
 <template>
   <div class="h-screen flex flex-col">
     <nav class="bg-white-100 h-20"></nav>
@@ -33,9 +30,9 @@ const handleRegister = (event) => {
       </div>
 
       <div
-        class="relative z-10 p-10 w-sm h-auto rounded-sm max-w-md bg-white shadow-2xl"
+        class="relative z-10 p-10 w-sm h-120 rounded-sm max-w-md bg-white shadow-2xl"
       >
-        <h1 class="text-4xl mb-6 text-center text-orange-600">Register</h1>
+        <h1 class="text-4xl mb-6 text-center text-orange-600 mt-5">Reset Password</h1>
 
         <form @submit="handleLogin">
           <TextInput
@@ -44,41 +41,30 @@ const handleRegister = (event) => {
             placeholder="Enter your username"
             v-model="username"
           />
-          <TextInput
-            label="Email"
-            type="email"
-            placeholder="Enter your email"
-            v-model="email"
-          />
+
           <TextInput
             label="Password"
             type="password"
             placeholder="Enter your password"
             v-model="password"
-            class="mb-2"
+            class="mt-4 mb-2"
           />
           <TextInput
             label="Confirm Password"
             type="password"
             placeholder="Confirm your password"
             v-model="confirmPassword"
-            class="mb-2"
+            class="mt-4 mb-2"
           />
-          <router-link
-            to="/register"
-            class="flex text-sm text-gray-500 hover:underline hover:text-orange-500 mt-1 justify-start-safe mb-5"
-            >Forgot password?</router-link
-          >
           <button
-            @click="handleRegister"
             type="submit"
             class="w-full bg-orange-500 text-white py-2 rounded-sm hover:bg-orange-600 transition-colors mt-4"
           >
-            register
+            Login
           </button>
         </form>
         <router-link
-          to="/login"
+          to="/register"
           class="flex text-sm text-gray-500 hover:underline hover:text-orange-500 mt-1 justify-end-safe"
           >Have an account?</router-link
         >
