@@ -65,7 +65,7 @@ const handleRegister = (event) => {
             class="mb-2"
           />
           <router-link
-            to="/register"
+            to="/resetpassword"
             class="flex text-sm text-gray-500 hover:underline hover:text-orange-500 mt-1 justify-start-safe mb-5"
             >Forgot password?</router-link
           >

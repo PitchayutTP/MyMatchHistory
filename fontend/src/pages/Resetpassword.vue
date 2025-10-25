@@ -64,9 +64,9 @@ const handleLogin = (event) => {
           </button>
         </form>
         <router-link
-          to="/register"
+          to="/login"
           class="flex text-sm text-gray-500 hover:underline hover:text-orange-500 mt-1 justify-end-safe"
-          >Have an account?</router-link
+          >Login</router-link
         >
       </div>
     </div>
