@@ -11,23 +11,24 @@
             />
         </div>
 
-        <button
+        <router-link
+            to="/upload"
             class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition"
-            @click="goToUpload"
         >
             Upload
-        </button>
+        </router-link>
+
+        <router-link
+            to="/history"
+            class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition ml-2"
+        >
+            History
+        </router-link>
     </nav>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import { useRouter } from "vue-router";
 
 const search = ref("");
-const router = useRouter();
-
-function goToUpload() {
-    router.push("/upload");
-}
 </script>
