@@ -91,9 +91,9 @@
                     class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
                 >
                     <option value="">Select result</option>
-                    <option value="Win">Win</option>
-                    <option value="Lose">Lose</option>
-                    <option value="Draw">Draw</option>
+                    <option value="win">Win</option>
+                    <option value="lose">Lose</option>
+                    <option value="draw">Draw</option>
                 </select>
             </div>
 
@@ -156,7 +156,7 @@
                     type="submit"
                     class="px-4 py-2 rounded-md border border-transparent bg-orange-600 text-sm font-medium text-white shadow-sm hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
                 >
-                    Save Match
+                    Submit
                 </button>
             </div>
         </form>
@@ -164,7 +164,12 @@
 </template>
 
 <script setup>
-import { reactive } from "vue";
+import { reactive, ref } from "vue";
+import axios from "axios";
+
+const fileInput = ref(null);
+
+const emit = defineEmits(["uploaded", "close"]);
 
 const getInitialState = () => ({
     user_id: null,
@@ -189,15 +194,43 @@ function handleFileChange(event) {
     }
 }
 
-function handleSubmit() {
-    console.log("Match data submitted:", form);
+async function handleSubmit() {
+    const formData = new FormData();
+
+    formData.append("user_id", form.user_id);
+    formData.append("sport_id", form.sport_id);
+    formData.append("match_date", form.match_date);
+    formData.append("location", form.location);
+    formData.append("opponent", form.opponent);
+    formData.append("result", form.result);
+    formData.append("score", form.score);
+    formData.append("notes", form.notes);
 
     if (form.clip) {
-        console.log("Uploaded file name:", form.clip.name);
-        console.log("Uploaded file size:", form.clip.size);
+        formData.append("clip", form.clip, form.clip.name);
     }
 
-    alert("Match record saved!");
+    try {
+        const response = await axios.post(
+            "http://localhost:3000/api/videos",
+            formData,
+            {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            },
+        );
+
+        const newVideo = response.data;
+        alert("Match record saved!");
+
+        emit("uploaded", newVideo);
+
+        resetForm();
+    } catch (error) {
+        console.error("Error saving match:", error);
+        alert("Error: Could not save match.");
+    }
 }
 
 function resetForm() {

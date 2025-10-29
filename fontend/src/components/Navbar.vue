@@ -11,24 +11,98 @@
             />
         </div>
 
-        <router-link
-            to="/upload"
-            class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition"
-        >
-            Upload
-        </router-link>
+        <div class="flex items-center space-x-4">
+            <router-link
+                to="/upload"
+                class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition"
+            >
+                Upload
+            </router-link>
 
-        <router-link
-            to="/history"
-            class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition ml-2"
-        >
-            History
-        </router-link>
+            <router-link
+                to="/history"
+                class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition"
+            >
+                History
+            </router-link>
+
+            <div class="relative">
+                <button
+                    @click="toggleDropdown"
+                    class="flex items-center text-gray-700 hover:text-orange-600 focus:outline-none"
+                >
+                    <span class="font-medium">{{ username }}</span>
+                    <svg
+                        class="w-4 h-4 ml-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M19 9l-7 7-7-7"
+                        ></path>
+                    </svg>
+                </button>
+
+                <div
+                    v-if="isDropdownOpen"
+                    class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200"
+                >
+                    <router-link
+                        to="/profile/edit"
+                        @click="isDropdownOpen = false"
+                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                        Edit
+                    </router-link>
+                    <button
+                        @click="handleLogout"
+                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
     </nav>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 
-const search = ref("");
+const search = defineModel("search");
+
+const isDropdownOpen = ref(false);
+
+const toggleDropdown = () => {
+    isDropdownOpen.value = !isDropdownOpen.value;
+};
+
+const username = ref("...");
+
+onMounted(async () => {
+    try {
+        const response = await fetch("http://localhost:3000/api/me");
+
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
+        }
+
+        const userData = await response.json();
+        username.value = userData.username;
+    } catch (error) {
+        console.error("Failed to fetch user:", error);
+        username.value = "Guest";
+    }
+});
+
+// ... (ส่วน handleLogout)
+// const handleLogout = () => {
+//   console.log("User logged out");
+//   isDropdownOpen.value = false;
+// };
 </script>

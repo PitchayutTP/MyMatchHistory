@@ -1,12 +1,12 @@
 <template>
     <div class="min-h-screen bg-gray-100">
-        <Navbar @upload="showUpload = true" />
+        <Navbar @upload="showUpload = true" v-model:search="searchTerm" />
 
         <div
             class="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
         >
             <VideoCard
-                v-for="video in videos"
+                v-for="video in filteredVideos"
                 :key="video.id"
                 :title="video.title"
                 :thumbnail="video.thumbnail"
@@ -14,12 +14,6 @@
                 class="cursor-pointer transition-transform hover:scale-105"
             />
         </div>
-
-        <Upload
-            v-if="showUpload"
-            @close="showUpload = false"
-            @uploaded="addVideo"
-        />
 
         <VideoDetailModal
             v-if="showVideoDetail && selectedVideo"
@@ -30,7 +24,9 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+// 1. Import 'computed'
+import { ref, onMounted, computed } from "vue";
+import axios from "axios";
 import Navbar from "../components/Navbar.vue";
 import VideoCard from "../components/VideoCard.vue";
 import Upload from "./Upload.vue";
@@ -41,29 +37,31 @@ const showUpload = ref(false);
 const showVideoDetail = ref(false);
 const selectedVideo = ref(null);
 
-const videos = ref([
-    {
-        id: 1,
-        title: "Vue 3 Tutorial",
-        thumbnail: "https://picsum.photos/300/200?random=1",
-        videoSrc:
-            "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-    },
-    {
-        id: 2,
-        title: "Build YouTube Clone",
-        thumbnail: "https://picsum.photos/300/200?random=2",
-        videoSrc:
-            "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-    },
-    {
-        id: 3,
-        title: "Frontend Tips",
-        thumbnail: "https://picsum.photos/300/200?random=3",
-        videoSrc:
-            "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-    },
-]);
+const videos = ref([]);
+
+const searchTerm = ref("");
+
+const filteredVideos = computed(() => {
+    if (!searchTerm.value) {
+        return videos.value;
+    }
+    return videos.value.filter((video) =>
+        video.title.toLowerCase().includes(searchTerm.value.toLowerCase()),
+    );
+});
+
+async function fetchVideos() {
+    try {
+        const response = await axios.get("http://localhost:3000/api/videos");
+        videos.value = response.data;
+    } catch (error) {
+        console.error("Error fetching videos:", error);
+    }
+}
+
+onMounted(() => {
+    fetchVideos();
+});
 
 function openVideoDetail(video) {
     selectedVideo.value = video;
