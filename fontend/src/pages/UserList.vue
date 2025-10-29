@@ -1,32 +1,44 @@
 <script setup>
 import Navbar from "../components/Navbar.vue";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import axios from "axios";
 
-// mock รอ db
-const users = ref([
-  { id: 1, name: "Alice", imageUrl: "https://picsum.photos/seed/1/100/100" },
-  { id: 2, name: "Bob", imageUrl: "https://picsum.photos/seed/2/100/100" },
-  { id: 3, name: "Charlie", imageUrl: "https://picsum.photos/seed/3/100/100" },
-  { id: 4, name: "David", imageUrl: "https://picsum.photos/seed/4/100/100" },
-  { id: 5, name: "Eve", imageUrl: "https://picsum.photos/seed/5/100/100" },
-  { id: 6, name: "Frank", imageUrl: "https://picsum.photos/seed/6/100/100" },
-  { id: 7, name: "Grace", imageUrl: "https://picsum.photos/seed/7/100/100" },
-  { id: 8, name: "Heidi", imageUrl: "https://picsum.photos/seed/8/100/100" },
-  { id: 9, name: "Ivan", imageUrl: "https://picsum.photos/seed/9/100/100" },
-  { id: 10, name: "Judy", imageUrl: "https://picsum.photos/seed/10/100/100" },
-  {
-    id: 11,
-    name: "Mallory",
-    imageUrl: "https://picsum.photos/seed/11/100/100",
-  },
-]);
+const users = ref([]);
+const isLoading = ref(true);
+const error = ref(null);
+
+async function fetchUsers() {
+  try {
+    const response = await axios.get("http://localhost:3000/api/userlist");
+    users.value = response.data;
+    console.log("Fetched users:", users.value);
+  } catch (err) {
+    console.error("Error fetching users:", err);
+    error.value = "ไม่สามารถโหลดข้อมูลผู้ใช้ได้";
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+onMounted(() => {
+  fetchUsers();
+});
 </script>
+
 <template>
   <div class="min-h-screen bg-gray-100">
     <Navbar />
 
     <div class="container mx-auto p-8">
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+      <div v-if="isLoading" class="text-center text-gray-500">
+        <p>กำลังโหลดข้อมูล...</p>
+      </div>
+
+      <div v-else-if="error" class="text-center text-red-500">
+        <p>{{ error }}</p>
+      </div>
+      
+      <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
         <router-link
           v-for="user in users"
           :key="user.id"

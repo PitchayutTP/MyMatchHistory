@@ -3,32 +3,55 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import Navbar from "../components/Navbar.vue";
 import TextInput from "../components/textinput.vue";
+import axios from "axios";
 
-// --- State ---
-// VVV เติม Mock Data (ข้อมูลจำลอง) ลงใน form VVV
 const form = ref({
-  firstname: "Somsak",
-  lastname: "Jaidee",
-  email: "somsak.j@example.com",
-  phone_number: "081-234-5678",
-  address: "123/45 BKK, Thailand 10110",
+  firstname: "",
+  lastname: "",
+  email: "",
+  phone_number: "",
+  description: "",
 });
-// --- ^^^ สิ้นสุด Mock Data ^^^ ---
 
 const error = ref("");
 const userId = ref(null);
 const router = useRouter();
-// VVV ลบ isLoading state VVV
-// const isLoading = ref(true); 
+const isLoading = ref(true);
 
-// --- Lifecycle (onMounted) ---
-// (onMounted ว่างเปล่า เพราะเรายังไม่ดึงข้อมูลจริง)
-function updateUserProfile() {
-  // ฟังก์ชันนี้จะถูกเรียกเมื่อผู้ใช้ส่งฟอร์ม
-  // ในที่นี้เราจะแค่แสดงข้อมูลในคอนโซล
-  console.log("Updating user profile with data:", form.value);
-  alert("ข้อมูลของคุณได้รับการอัพเดตแล้ว!");
-}
+onMounted(async () => {
+  const storedUserId = localStorage.getItem("userId");
+  if (!storedUserId) {
+    alert("กรุณาเข้าสู่ระบบก่อน");
+    router.push("/login");
+    return;
+  }
+  userId.value = storedUserId;
+
+  try {
+    const response = await axios.get(`http://localhost:3000/api/profile/${storedUserId}`);
+    form.value = response.data;
+  } catch (err) {
+    console.error("Error fetching profile:", err);
+    error.value = "ไม่สามารถโหลดข้อมูลโปรไฟล์ได้";
+  } finally {
+    isLoading.value = false;
+  }
+});
+
+const handleSubmit = async () => {
+  error.value = "";
+  if (!userId.value) return;
+
+  try {
+    await axios.patch(`http://localhost:3000/api/profile/${userId.value}`, form.value);
+    
+    alert("อัปเดตข้อมูลสำเร็จ!");
+
+  } catch (err) {
+    console.error("Error updating profile:", err);
+    error.value = "เกิดข้อผิดพลาดในการอัปเดตข้อมูล";
+  }
+};
 </script>
 
 <template>
@@ -37,7 +60,11 @@ function updateUserProfile() {
 
     <div class="container mx-auto p-8 overflow-y-auto flex-1">
       
-      <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-3xl mx-auto">
+      <div v-if="isLoading" class="text-center text-gray-500 mt-10">
+        <p>Loading Profile...</p>
+      </div>
+
+      <div v-else class="bg-white p-6 rounded-lg shadow-md w-full max-w-3xl mx-auto">
         
         <h2 class="text-4xl mb-10 text-center font-sans text-orange-600">บัญชีของคุณ</h2>
         
@@ -75,21 +102,20 @@ function updateUserProfile() {
               class="w-1/2"
             />
           </div>
+          
           <TextInput
-            label="Address"
-            name="address"
-            v-model="form.address"
-            placeholder="กรอกที่อยู่ของคุณ"
+            label="Description"
+            name="description"
+            v-model="form.description" 
+            placeholder="กรอกคำอธิบายของคุณ"
             class="mb-4"
           />
-
           <p v-if="error" class="text-red-500 text-sm mt-2 whitespace-pre-line">
             {{ error }}
           </p>
 
           <button
-            @click="updateUserProfile"
-            type="submit"
+            type="submit" 
             class="w-full py-2 mt-4 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-all"
           >
             อัพเดตข้อมูล
