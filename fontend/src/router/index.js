@@ -6,6 +6,7 @@ import Upload from "../pages/Upload.vue";
 import Resetpassword from "../pages/Resetpassword.vue";
 import UserList from "../pages/UserList.vue";
 import UserDetail from "../pages/UserDetail.vue";
+import UserProfile from "../pages/UserProfile.vue";
 
 const routes = [
   { path: "/", name: "home", component: Home },
@@ -15,6 +16,7 @@ const routes = [
   { path: "/resetpassword", name: "resetpassword", component: Resetpassword },
   { path: "/userlist", name: "userlist", component: UserList },
   { path: "/user/:id", name: "userdetail", component: UserDetail },
+  { path: "/userprofile", name: "userprofile", component: UserProfile },
 ];
 
 const router = createRouter({
