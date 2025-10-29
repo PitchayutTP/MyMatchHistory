@@ -18,7 +18,7 @@ const routes = [
   { path: "/resetpassword", name: "resetpassword", component: Resetpassword },
   { path: "/userlist", name: "userlist", component: UserList },
   { path: "/user/:id", name: "userdetail", component: UserDetail },
-  { path: "/userprofile", name: "userprofile", component: UserProfile },
+  { path: "/profile", name: "userprofile", component: UserProfile },
 ];
 
 const router = createRouter({

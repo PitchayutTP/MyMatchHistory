@@ -53,11 +53,11 @@
                     class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200"
                 >
                     <router-link
-                        to="/profile/edit"
+                        to="/profile"
                         @click="isDropdownOpen = false"
                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                     >
-                        Edit
+                        Profile
                     </router-link>
                     <button
                         @click="handleLogout"
@@ -100,9 +100,27 @@ onMounted(async () => {
     }
 });
 
-// ... (ส่วน handleLogout)
-// const handleLogout = () => {
-//   console.log("User logged out");
-//   isDropdownOpen.value = false;
-// };
+const handleLogout = async () => {
+  const token = localStorage.getItem("authToken");
+  isDropdownOpen.value = false;
+
+  try {
+
+    await fetch("http://localhost:3000/api/logout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      }
+    });
+    
+  } catch (error) {
+    console.error("Server logout failed:", error);
+
+  }
+  localStorage.removeItem("authToken");
+  localStorage.removeItem("userId");
+  
+  router.push("/login");
+};
 </script>
