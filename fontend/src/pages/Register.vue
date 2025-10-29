@@ -2,16 +2,77 @@
 import { ref } from "vue";
 import TextInput from "../components/textinput.vue";
 import bgImage from "../assets/tennis.jpg";
+import { useRouter } from "vue-router"; // 1. import useRouter
+import axios from "axios"; // 2. import axios
 
+// --- State เดิม ---
 const email = ref("");
 const password = ref("");
 const username = ref("");
 
-const handleRegister = (event) => {
-  event.preventDefault();
-  console.log("Username:", username.value);
-  console.log("Email:", email.value);
-  console.log("Password:", password.value);
+// --- 3. State ที่เพิ่มเข้ามา ---
+const confirmPassword = ref(""); // State สำหรับ "ยืนยันรหัสผ่าน"
+const isLoading = ref(false); // State สำหรับ loading
+const error = ref(""); // State สำหรับ error
+const router = useRouter(); // Instance ของ router
+
+// --- 4. แก้ไข handleRegister ให้ยิง API ---
+const handleRegister = async () => {
+  isLoading.value = true;
+  error.value = "";
+
+  // 5. ตรวจสอบรหัสผ่าน (ฝั่ง Client)
+  if (password.value !== confirmPassword.value) {
+    error.value = "รหัสผ่านและรหัสผ่านยืนยันไม่ตรงกัน";
+    isLoading.value = false;
+    return; // หยุดทำงาน
+  }
+
+  // 6. ตรวจสอบว่ากรอกครบ (เผื่อ)
+  if (!username.value || !email.value || !password.value) {
+    error.value = "กรุณากรอกข้อมูลให้ครบถ้วน";
+    isLoading.value = false;
+    return;
+  }
+
+  try {
+    // 7. ยิง API ไปยัง Backend (เปลี่ยน URL นี้)
+    await axios.post("http://localhost:3000/api/register", {
+      username: username.value,
+      email: email.value,
+      password: password.value,
+    });
+
+    // 8. ลงทะเบียนสำเร็จ
+    alert("ลงทะเบียนสำเร็จ! กรุณาเข้าสู่ระบบ");
+    
+    // 9. พาไปหน้า Login
+    router.push("/login");
+
+  } catch (err) {
+    // 10. จัดการ Error (เช่น username ซ้ำ)
+    console.error("Register failed:", err);
+    if (err.response && err.response.data) {
+      // ลองดึง error จาก backend (ถ้ามี)
+      const errorData = err.response.data;
+      let errorMessages = [];
+      for (const key in errorData) {
+        errorMessages.push(`${key}: ${errorData[key].join(', ')}`);
+      }
+      
+      if (errorMessages.length > 0) {
+        error.value = errorMessages.join("\n");
+      } else {
+        error.value = "ข้อมูลไม่ถูกต้อง หรือมีผู้ใช้นี้ในระบบแล้ว";
+      }
+      
+    } else {
+      error.value = "เกิดข้อผิดพลาดในการลงทะเบียน";
+    }
+  } finally {
+    // 11. สิ้นสุด Loading
+    isLoading.value = false;
+  }
 };
 </script>
 
@@ -37,7 +98,7 @@ const handleRegister = (event) => {
       >
         <h1 class="text-4xl mb-6 text-center text-orange-600">Register</h1>
 
-        <form @submit="handleLogin">
+        <form @submit.prevent="handleRegister">
           <TextInput
             label="Username"
             type="text"
@@ -61,20 +122,28 @@ const handleRegister = (event) => {
             label="Confirm Password"
             type="password"
             placeholder="Confirm your password"
-            v-model="confirmPassword"
+            v-model="confirmPassword" 
             class="mb-2"
           />
+          
           <router-link
             to="/resetpassword"
             class="flex text-sm text-gray-500 hover:underline hover:text-orange-500 mt-1 justify-start-safe mb-5"
             >Forgot password?</router-link
           >
+          
+          <p v-if="error" class="text-red-500 text-sm text-center mb-4 whitespace-pre-line">
+            {{ error }}
+          </p>
+
           <button
-            @click="handleRegister"
             type="submit"
-            class="w-full bg-orange-500 text-white py-2 rounded-sm hover:bg-orange-600 transition-colors mt-4"
+            :disabled="isLoading" 
+            class="w-full bg-orange-500 text-white py-2 rounded-sm hover:bg-orange-600 transition-colors mt-4
+                   disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            register
+            <span v-if="isLoading">กำลังลงทะเบียน...</span>
+            <span v-else>Register</span>
           </button>
         </form>
         <router-link

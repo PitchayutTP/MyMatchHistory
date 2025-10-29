@@ -2,16 +2,54 @@
 import { ref } from "vue";
 import TextInput from "../components/textinput.vue";
 import bgImage from "../assets/tennis.jpg";
+import { useRouter } from "vue-router";
+import axios from "axios";
 
-const email = ref("");
+// --- State ---
+const username = ref("");
 const password = ref("");
+const confirmPassword = ref("");
+const isLoading = ref(false);
+const error = ref("");
+const router = useRouter();
 
-const handleLogin = (event) => {
-  event.preventDefault();
-  console.log("Email:", email.value);
-  console.log("Password:", password.value);
+// --- Function ---
+const handleResetPassword = async () => {
+  isLoading.value = true;
+  error.value = "";
+
+  // 1. ตรวจสอบรหัสผ่าน (ฝั่ง Client)
+  if (password.value !== confirmPassword.value) {
+    error.value = "รหัสผ่านและรหัสผ่านยืนยันไม่ตรงกัน";
+    isLoading.value = false;
+    return;
+  }
+
+  try {
+    // 2. ยิง API ไปยัง Mock Server (ใช้ path ที่เราจะสร้าง)
+    await axios.post("http://localhost:3000/api/reset-password", {
+      username: username.value,
+      password: password.value,
+    });
+
+    // 3. สำเร็จ
+    alert("อัปเดตรหัสผ่านสำเร็จ! กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่");
+    router.push("/login");
+
+  } catch (err) {
+    // 4. จัดการ Error
+    console.error("Reset password failed:", err);
+    if (err.response && err.response.data && err.response.data.detail) {
+      error.value = err.response.data.detail;
+    } else {
+      error.value = "เกิดข้อผิดพลาด หรือไม่พบชื่อผู้ใช้นี้ในระบบ";
+    }
+  } finally {
+    isLoading.value = false;
+  }
 };
 </script>
+
 <template>
   <div class="h-screen flex flex-col">
     <nav class="bg-white-100 h-20"></nav>
@@ -34,7 +72,7 @@ const handleLogin = (event) => {
       >
         <h1 class="text-4xl mb-6 text-center text-orange-600 mt-5">Reset Password</h1>
 
-        <form @submit="handleLogin">
+        <form @submit.prevent="handleResetPassword">
           <TextInput
             label="Username"
             type="text"
@@ -43,24 +81,32 @@ const handleLogin = (event) => {
           />
 
           <TextInput
-            label="Password"
+            label="New Password"
             type="password"
-            placeholder="Enter your password"
+            placeholder="Enter your new password"
             v-model="password"
             class="mt-4 mb-2"
           />
           <TextInput
-            label="Confirm Password"
+            label="Confirm New Password"
             type="password"
-            placeholder="Confirm your password"
+            placeholder="Confirm your new password"
             v-model="confirmPassword"
             class="mt-4 mb-2"
           />
+
+          <p v-if="error" class="text-red-500 text-sm text-center my-4">
+            {{ error }}
+          </p>
+
           <button
             type="submit"
-            class="w-full bg-orange-500 text-white py-2 rounded-sm hover:bg-orange-600 transition-colors mt-4"
+            :disabled="isLoading"
+            class="w-full bg-orange-500 text-white py-2 rounded-sm hover:bg-orange-600 transition-colors mt-4
+                   disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            Login
+            <span v-if="isLoading">กำลังอัปเดต...</span>
+            <span v-else>Reset Password</span>
           </button>
         </form>
         <router-link
