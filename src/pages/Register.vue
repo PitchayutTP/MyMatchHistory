@@ -2,19 +2,17 @@
 import { ref } from "vue";
 import TextInput from "../components/textinput.vue";
 import bgImage from "../assets/tennis.jpg";
-import { useRouter } from "vue-router"; // 1. import useRouter
-import axios from "axios"; // 2. import axios
+import { useRouter } from "vue-router";
+import axios from "axios";
 
-// --- State เดิม ---
+// --- State ---
 const email = ref("");
 const password = ref("");
 const username = ref("");
-
-// --- 3. State ที่เพิ่มเข้ามา ---
-const confirmPassword = ref(""); // State สำหรับ "ยืนยันรหัสผ่าน"
-const isLoading = ref(false); // State สำหรับ loading
-const error = ref(""); // State สำหรับ error
-const router = useRouter(); // Instance ของ router
+const confirmPassword = ref("");
+const isLoading = ref(false);
+const error = ref("");
+const router = useRouter();
 
 // --- 4. แก้ไข handleRegister ให้ยิง API ---
 const handleRegister = async () => {
@@ -36,7 +34,7 @@ const handleRegister = async () => {
   }
 
   try {
-    // 7. ยิง API (เวอร์ชัน SignUpCommand)
+    // 7. ยิง API (URL ถูกต้องแล้ว)
     await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/register`, {
       username: username.value,
       email: email.value,
@@ -44,23 +42,20 @@ const handleRegister = async () => {
     });
 
     // 8. ลงทะเบียนสำเร็จ
-    alert("ลงทะเบียนสำเร็จ! กรุณาตรวจสอบ Email ของคุณเพื่อรับรหัสยืนยัน");
+    alert("ลงทะเบียนสำเร็จ! กรุณาตรวจสอบ Email (ถ้ามี) และเข้าสู่ระบบ");
 
-    // 9. พาไปหน้า Login (หรือหน้า Confirm ถ้าคุณสร้าง)
+    // 9. พาไปหน้า Login
     router.push("/login");
 
   } catch (err) {
-    // 10. จัดการ Error (แบบใหม่ที่ซ่อมแล้ว)
+    // 10. ⭐️ จัดการ Error (ซ่อม Bug แล้ว) ⭐️
     console.error("Register failed:", err);
-
     if (err.response && err.response.data && err.response.data.detail) {
       // ถ้า Backend (Lambda) ส่ง {"detail":"..."} มา
       error.value = err.response.data.detail;
-
     } else if (err.response && err.response.data) {
       // ถ้า Backend ส่งอะไรอย่างอื่นมา
       error.value = JSON.stringify(err.response.data);
-
     } else {
       // ถ้าเป็น Network Error
       error.value = "เกิดข้อผิดพลาดในการลงทะเบียน (Network Error)";

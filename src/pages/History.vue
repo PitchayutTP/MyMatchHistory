@@ -8,32 +8,20 @@
             </div>
 
             <div class="flex flex-col gap-5">
-                <div
-                    v-if="videoList.length === 0"
-                    class="text-center text-gray-500 py-10"
-                >
+                <div v-if="videoList.length === 0" class="text-center text-gray-500 py-10">
                     ยังไม่มีประวัติการแข่งขัน
                 </div>
 
-                <div
-                    v-for="video in videoList"
-                    :key="video.id"
-                    class="flex flex-col sm:flex-row items-start gap-4"
-                >
+                <div v-for="video in videoList" :key="video.id" class="flex flex-col sm:flex-row items-start gap-4">
                     <a :href="video.videoSrc" target="_blank">
-                        <img
-                            :src="video.thumbnail"
-                            :alt="video.title"
-                            class="w-full sm:w-48 aspect-video object-cover rounded-lg shadow-sm cursor-pointer hover:opacity-90"
-                        />
+                        <img :src="video.thumbnail" :alt="video.title"
+                            class="w-full sm:w-48 aspect-video object-cover rounded-lg shadow-sm cursor-pointer hover:opacity-90" />
                     </a>
 
                     <div class="flex-1 min-w-0">
                         <a :href="video.videoSrc" target="_blank">
-                            <h3
-                                class="text-lg font-semibold text-gray-900 hover:text-blue-700 cursor-pointer"
-                                :title="video.title"
-                            >
+                            <h3 class="text-lg font-semibold text-gray-900 hover:text-blue-700 cursor-pointer"
+                                :title="video.title">
                                 {{ video.title }}
                             </h3>
                         </a>
@@ -45,19 +33,17 @@
                             Opponent:
                             <span class="font-medium">{{
                                 video.opponent
-                            }}</span>
+                                }}</span>
                         </p>
                         <p class="text-sm text-gray-600">
                             Location:
                             <span class="font-medium">{{
                                 video.location
-                            }}</span>
+                                }}</span>
                         </p>
                         <p class="text-sm text-gray-600">
                             result:
-                            <span class="font-medium"
-                                >{{ video.result }} ({{ video.score }})</span
-                            >
+                            <span class="font-medium">{{ video.result }} ({{ video.score }})</span>
                         </p>
                         <p class="text-sm text-gray-600">
                             note:
@@ -72,16 +58,12 @@
                     </div>
 
                     <div class="flex sm:flex-col gap-2 pt-2 sm:pt-0">
-                        <button
-                            @click="editItem(video)"
-                            class="bg-blue-500 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-600 transition"
-                        >
+                        <button @click="editItem(video)"
+                            class="bg-blue-500 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-600 transition">
                             แก้ไข
                         </button>
-                        <button
-                            @click="deleteItem(video.id)"
-                            class="bg-red-500 text-white px-3 py-1 rounded-md text-sm hover:bg-red-600 transition"
-                        >
+                        <button @click="deleteItem(video.id)"
+                            class="bg-red-500 text-white px-3 py-1 rounded-md text-sm hover:bg-red-600 transition">
                             ลบ
                         </button>
                     </div>
@@ -89,28 +71,44 @@
             </div>
         </div>
 
-        <EditModal
-            :isOpen="isModalOpen"
-            :item="currentItemToEdit"
-            @close="closeModal"
-            @save="saveChanges"
-        />
+        <EditModal :isOpen="isModalOpen" :item="currentItemToEdit" @close="closeModal" @save="saveChanges" />
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router"; // ⭐️ เพิ่ม useRouter
 import axios from "axios";
 import EditModal from "../components/EditModal.vue";
 
 const videoList = ref([]);
+const router = useRouter(); // ⭐️ เพิ่ม useRouter
+
+// ⭐️ ฟังก์ชันช่วยสร้าง Header (จะได้ไม่เขียนซ้ำ)
+const getAuthHeaders = () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+        router.push('/login');
+        return null;
+    }
+    return { 'Authorization': `Bearer ${token}` };
+};
 
 async function fetchVideos() {
     try {
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/videos`);
+        const headers = getAuthHeaders();
+        if (!headers) return;
+
+        const response = await axios.get(
+            `${import.meta.env.VITE_API_BASE_URL}/api/videos`,
+            { headers } // ⭐️ ส่ง Header
+        );
         videoList.value = response.data;
     } catch (error) {
         console.error("Error fetching videos:", error);
+        if (error.response && error.response.status === 401) {
+            router.push('/login');
+        }
     }
 }
 
@@ -127,12 +125,21 @@ async function deleteItem(id) {
     }
 
     try {
-        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/videos/${id}`);
+        const headers = getAuthHeaders();
+        if (!headers) return;
+
+        await axios.delete(
+            `${import.meta.env.VITE_API_BASE_URL}/api/videos/${id}`,
+            { headers } // ⭐️ ส่ง Header
+        );
         videoList.value = videoList.value.filter((video) => video.id !== id);
         console.log("ลบวิดีโอ ID:", id);
     } catch (error) {
         console.error("Error deleting video:", error);
         alert("ลบข้อมูลไม่สำเร็จ");
+        if (error.response && error.response.status === 401) {
+            router.push('/login');
+        }
     }
 }
 
@@ -149,9 +156,13 @@ function closeModal() {
 
 async function saveChanges(updatedItem) {
     try {
+        const headers = getAuthHeaders();
+        if (!headers) return;
+
         const response = await axios.put(
             `${import.meta.env.VITE_API_BASE_URL}/api/videos/${updatedItem.id}`,
             updatedItem,
+            { headers } // ⭐️ ส่ง Header
         );
 
         const index = videoList.value.findIndex((v) => v.id === updatedItem.id);
@@ -164,6 +175,9 @@ async function saveChanges(updatedItem) {
     } catch (error) {
         console.error("Error saving video:", error);
         alert("บันทึกข้อมูลไม่สำเร็จ");
+        if (error.response && error.response.status === 401) {
+            router.push('/login');
+        }
     }
 }
 </script>
