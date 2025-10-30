@@ -17,13 +17,6 @@ const handleLogin = async () => {
   isLoading.value = true;
   error.value = "";
 
-  // ⭐️ 1. เพิ่ม Validation (นี่คือการแก้ปัญหา Error) ⭐️
-  if (!username.value || !password.value) {
-    error.value = "กรุณากรอก Email และรหัสผ่าน";
-    isLoading.value = false;
-    return;
-  }
-  console.log(username, password)
   // ------------------------------------------
 
   try {
