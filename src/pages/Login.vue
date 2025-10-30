@@ -21,6 +21,7 @@ const handleLogin = async () => {
   if (!username.value || !password.value) {
     error.value = "กรุณากรอก Email และรหัสผ่าน";
     isLoading.value = false;
+    console.log(username, password)
     return;
   }
   // ------------------------------------------
