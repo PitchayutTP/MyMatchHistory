@@ -4,10 +4,10 @@ import bgImage from "../assets/tennis.jpg";
 import TextInput from "../components/textinput.vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode"; // ⭐️ 1. import jwt-decode
+import { jwtDecode } from "jwt-decode"; // ⭐️ (อย่าลืม npm install jwt-decode)
 
 // --- State ---
-const username = ref(""); // ⭐️ ที่ช่องนี้ ผู้ใช้ต้องกรอก Email
+const username = ref(""); // (นี่คือ Email)
 const password = ref("");
 const isLoading = ref(false);
 const error = ref("");
@@ -17,6 +17,14 @@ const handleLogin = async () => {
   isLoading.value = true;
   error.value = "";
 
+  // ⭐️ 1. เพิ่ม Validation (นี่คือการแก้ปัญหา Error) ⭐️
+  if (!username.value || !password.value) {
+    error.value = "กรุณากรอก Email และรหัสผ่าน";
+    isLoading.value = false;
+    return;
+  }
+  // ------------------------------------------
+
   try {
     const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/login`, {
       username: username.value, // (นี่คือ Email ที่ผู้ใช้กรอก)
@@ -24,20 +32,20 @@ const handleLogin = async () => {
     });
 
     const { token, user } = response.data;
-
+    
     // 9. เก็บ token และ user ID
     localStorage.setItem("authToken", token);
     localStorage.setItem("userId", user.id);
 
-    // ⭐️ 10. ตรวจสอบสิทธิ์ Admin ⭐️
+    // 10. ตรวจสอบสิทธิ์ Admin
     try {
       const decodedToken = jwtDecode(token);
       const groups = decodedToken['cognito:groups'] || [];
-
+      
       if (groups.includes('Admins')) {
         localStorage.setItem("isAdmin", "true");
       } else {
-        localStorage.removeItem("isAdmin"); // ตรวจสอบให้แน่ใจว่าไม่ใช่ Admin
+        localStorage.removeItem("isAdmin");
       }
     } catch (e) {
       console.error("Error decoding token:", e);
