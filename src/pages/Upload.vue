@@ -3,18 +3,19 @@
         <h2 class="text-2xl font-bold text-gray-800 mb-4">Match Form</h2>
 
         <form @submit.prevent="handleSubmit" class="space-y-4">
+
             <div>
-                <label for="user_id" class="block text-sm font-medium text-gray-700">ชื่อ</label>
-                <input id="user_id" v-model.number="form.user_id" type="text"
+                <label for="title" class="block text-sm font-medium text-gray-700">ชื่อเรื่อง (Title)</label>
+                <input id="title" v-model="form.title" type="text"
                     class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
-                    placeholder="Enter name" />
+                    placeholder="Enter match title" />
             </div>
 
             <div>
                 <label for="sport_id" class="block text-sm font-medium text-gray-700">กีฬา</label>
-                <input id="sport_id" v-model.number="form.sport_id" type="text"
+                <input id="sport_id" v-model="form.sport_id" type="text"
                     class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
-                    placeholder="Enter sport" />
+                    placeholder="Enter sport (e.g., Tennis, Badminton)" />
             </div>
 
             <div>
@@ -84,15 +85,16 @@
 
 <script setup>
 import { reactive, ref } from "vue";
-import { useRouter } from "vue-router"; // ⭐️ เพิ่ม useRouter
+import { useRouter } from "vue-router";
 import axios from "axios";
 
 const fileInput = ref(null);
 const emit = defineEmits(["uploaded", "close"]);
-const router = useRouter(); // ⭐️ เพิ่ม useRouter
+const router = useRouter();
 
 const getInitialState = () => ({
     user_id: localStorage.getItem("userId") || null, // ⭐️ ดึง userId ที่เก็บไว้
+    title: "", // ⭐️ 2. เพิ่ม Title
     sport_id: null,
     match_date: "",
     location: "",
@@ -114,7 +116,7 @@ function handleFileChange(event) {
     }
 }
 
-// ⭐️ ฟังก์ชันช่วยสร้าง Header
+// (ฟังก์ชัน getAuthHeaders เหมือนเดิม)
 const getAuthHeaders = (contentType = 'application/json') => {
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -127,10 +129,15 @@ const getAuthHeaders = (contentType = 'application/json') => {
     };
 };
 
-// ⭐️ แก้ไข handleSubmit ทั้งหมด
+// ⭐️ แก้ไข handleSubmit
 async function handleSubmit() {
     if (!form.clip) {
         alert("Please select a video file.");
+        return;
+    }
+    // ⭐️ 3. เพิ่มการตรวจสอบ Title
+    if (!form.title) {
+        alert("Please enter a Title.");
         return;
     }
 
@@ -151,14 +158,14 @@ async function handleSubmit() {
 
         const { uploadURL, videoUrl } = presignedResponse.data;
 
-        // ----- 2. อัปโหลดไฟล์ไป S3 โดยตรง (ไม่ใช่ไปที่ Backend) -----
+        // ----- 2. อัปโหลดไฟล์ไป S3 โดยตรง -----
         await axios.put(uploadURL, form.clip, {
             headers: { 'Content-Type': form.clip.type }
         });
 
         // ----- 3. บันทึกข้อมูล (JSON) ลง DB ผ่าน Backend -----
         const videoData = {
-            user_id: form.user_id, // คุณอาจต้องเปลี่ยนเป็น User ID ที่ล็อกอินอยู่
+            user_id: form.user_id, // (ดึงมาจาก localStorage)
             sport_id: form.sport_id,
             match_date: form.match_date,
             location: form.location,
@@ -166,7 +173,10 @@ async function handleSubmit() {
             result: form.result,
             score: form.score,
             notes: form.notes,
-            videoSrc: videoUrl, // <--- นี่คือ URL จาก S3
+            videoSrc: videoUrl,
+            // ⭐️ 4. เพิ่ม Title และ Thumbnail (เพื่อให้ VideoCard ทำงาน) ⭐️
+            title: form.title,
+            thumbnail: "https://via.placeholder.com/320x180.png?text=Processing...", // (Placeholder)
         };
 
         const dbResponse = await axios.post(
@@ -181,7 +191,7 @@ async function handleSubmit() {
         );
 
         alert("Match record saved!");
-        emit("uploaded", dbResponse.data); //
+        emit("uploaded", dbResponse.data);
         resetForm();
 
     } catch (error) {
