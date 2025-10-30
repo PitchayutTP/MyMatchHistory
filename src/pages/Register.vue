@@ -45,30 +45,27 @@ const handleRegister = async () => {
 
     // 8. ลงทะเบียนสำเร็จ
     alert("ลงทะเบียนสำเร็จ! กรุณาเข้าสู่ระบบ");
-    
+
     // 9. พาไปหน้า Login
     router.push("/login");
 
   } catch (err) {
-    // 10. จัดการ Error (เช่น username ซ้ำ)
+    // 10. จัดการ Error (แบบใหม่ที่ซ่อมแล้ว)
     console.error("Register failed:", err);
-    if (err.response && err.response.data) {
-      // ลองดึง error จาก backend (ถ้ามี)
-      const errorData = err.response.data;
-      let errorMessages = [];
-      for (const key in errorData) {
-        errorMessages.push(`${key}: ${errorData[key].join(', ')}`);
-      }
-      
-      if (errorMessages.length > 0) {
-        error.value = errorMessages.join("\n");
-      } else {
-        error.value = "ข้อมูลไม่ถูกต้อง หรือมีผู้ใช้นี้ในระบบแล้ว";
-      }
-      
+
+    if (err.response && err.response.data && err.response.data.detail) {
+      // ถ้า Backend (Lambda) ส่ง {"detail":"..."} มา
+      error.value = err.response.data.detail;
+
+    } else if (err.response && err.response.data) {
+      // ถ้า Backend ส่งอะไรอย่างอื่นมา
+      error.value = JSON.stringify(err.response.data);
+
     } else {
-      error.value = "เกิดข้อผิดพลาดในการลงทะเบียน";
+      // ถ้าเป็น Network Error
+      error.value = "เกิดข้อผิดพลาดในการลงทะเบียน (Network Error)";
     }
+
   } finally {
     // 11. สิ้นสุด Loading
     isLoading.value = false;
@@ -80,77 +77,39 @@ const handleRegister = async () => {
   <div class="h-screen flex flex-col">
     <nav class="bg-white-100 h-20"></nav>
 
-    <div
-      class="flex-1 flex items-center justify-center relative" 
-      >
-      <div
-        class="absolute z-0 inset-0 w-full h-full overflow-hidden"
-      >
-        <img
-          :src="bgImage"
-          alt="Background Banner"
-          class="w-full h-full object-cover"
-        />
+    <div class="flex-1 flex items-center justify-center relative">
+      <div class="absolute z-0 inset-0 w-full h-full overflow-hidden">
+        <img :src="bgImage" alt="Background Banner" class="w-full h-full object-cover" />
       </div>
 
-      <div
-        class="relative z-10 p-10 w-sm h-auto rounded-sm max-w-md bg-white shadow-2xl"
-      >
+      <div class="relative z-10 p-10 w-sm h-auto rounded-sm max-w-md bg-white shadow-2xl">
         <h1 class="text-4xl mb-6 text-center text-orange-600">Register</h1>
 
         <form @submit.prevent="handleRegister">
-          <TextInput
-            label="Username"
-            type="text"
-            placeholder="Enter your username"
-            v-model="username"
-          />
-          <TextInput
-            label="Email"
-            type="email"
-            placeholder="Enter your email"
-            v-model="email"
-          />
-          <TextInput
-            label="Password"
-            type="password"
-            placeholder="Enter your password"
-            v-model="password"
-            class="mb-2"
-          />
-          <TextInput
-            label="Confirm Password"
-            type="password"
-            placeholder="Confirm your password"
-            v-model="confirmPassword" 
-            class="mb-2"
-          />
-          
-          <router-link
-            to="/resetpassword"
-            class="flex text-sm text-gray-500 hover:underline hover:text-orange-500 mt-1 justify-start-safe mb-5"
-            >Forgot password?</router-link
-          >
-          
+          <TextInput label="Username" type="text" placeholder="Enter your username" v-model="username" />
+          <TextInput label="Email" type="email" placeholder="Enter your email" v-model="email" />
+          <TextInput label="Password" type="password" placeholder="Enter your password" v-model="password"
+            class="mb-2" />
+          <TextInput label="Confirm Password" type="password" placeholder="Confirm your password"
+            v-model="confirmPassword" class="mb-2" />
+
+          <router-link to="/resetpassword"
+            class="flex text-sm text-gray-500 hover:underline hover:text-orange-500 mt-1 justify-start-safe mb-5">Forgot
+            password?</router-link>
+
           <p v-if="error" class="text-red-500 text-sm text-center mb-4 whitespace-pre-line">
             {{ error }}
           </p>
 
-          <button
-            type="submit"
-            :disabled="isLoading" 
-            class="w-full bg-orange-500 text-white py-2 rounded-sm hover:bg-orange-600 transition-colors mt-4
-                   disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
+          <button type="submit" :disabled="isLoading" class="w-full bg-orange-500 text-white py-2 rounded-sm hover:bg-orange-600 transition-colors mt-4
+                   disabled:bg-gray-400 disabled:cursor-not-allowed">
             <span v-if="isLoading">กำลังลงทะเบียน...</span>
             <span v-else>Register</span>
           </button>
         </form>
-        <router-link
-          to="/login"
-          class="flex text-sm text-gray-500 hover:underline hover:text-orange-500 mt-1 justify-end-safe"
-          >Have an account?</router-link
-        >
+        <router-link to="/login"
+          class="flex text-sm text-gray-500 hover:underline hover:text-orange-500 mt-1 justify-end-safe">Have an
+          account?</router-link>
       </div>
     </div>
   </div>
