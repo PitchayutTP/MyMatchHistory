@@ -35,7 +35,7 @@ const handleRegister = async () => {
     return;
   }
 
-try {
+  try {
     // 7. ยิง API (เวอร์ชัน SignUpCommand)
     await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/register`, {
       username: username.value,
@@ -52,11 +52,20 @@ try {
   } catch (err) {
     // 10. จัดการ Error (แบบใหม่ที่ซ่อมแล้ว)
     console.error("Register failed:", err);
+
     if (err.response && err.response.data && err.response.data.detail) {
+      // ถ้า Backend (Lambda) ส่ง {"detail":"..."} มา
       error.value = err.response.data.detail;
+
+    } else if (err.response && err.response.data) {
+      // ถ้า Backend ส่งอะไรอย่างอื่นมา
+      error.value = JSON.stringify(err.response.data);
+
     } else {
-      error.value = "เกิดข้อผิดพลาดในการลงทะเบียน";
+      // ถ้าเป็น Network Error
+      error.value = "เกิดข้อผิดพลาดในการลงทะเบียน (Network Error)";
     }
+
   } finally {
     // 11. สิ้นสุด Loading
     isLoading.value = false;
