@@ -134,30 +134,31 @@ async function handleSubmit() {
         return;
     }
 
-    const headers = getAuthHeaders();
-    if (!headers) return;
-
     try {
         // ----- 1. ดึง Pre-signed URL จาก Backend -----
+        const token = localStorage.getItem("authToken");
+
         const presignedResponse = await axios.post(
             `${import.meta.env.VITE_API_BASE_URL}/api/get-presigned-url`,
             {
                 fileName: form.clip.name,
                 fileType: form.clip.type,
             },
-            { headers } // ส่ง Token
+            {
+                headers: { Authorization: `Bearer ${token}` }
+            }
         );
 
         const { uploadURL, videoUrl } = presignedResponse.data;
 
-        // ----- 2. อัปโหลดไฟล์ไป S3 โดยตรง -----
+        // ----- 2. อัปโหลดไฟล์ไป S3 โดยตรง (ไม่ใช่ไปที่ Backend) -----
         await axios.put(uploadURL, form.clip, {
             headers: { 'Content-Type': form.clip.type }
         });
 
         // ----- 3. บันทึกข้อมูล (JSON) ลง DB ผ่าน Backend -----
         const videoData = {
-            user_id: form.user_id,
+            user_id: form.user_id, // คุณอาจต้องเปลี่ยนเป็น User ID ที่ล็อกอินอยู่
             sport_id: form.sport_id,
             match_date: form.match_date,
             location: form.location,
@@ -171,19 +172,21 @@ async function handleSubmit() {
         const dbResponse = await axios.post(
             `${import.meta.env.VITE_API_BASE_URL}/api/videos`,
             videoData,
-            { headers } // ส่ง Token
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                }
+            }
         );
 
         alert("Match record saved!");
-        emit("uploaded", dbResponse.data);
+        emit("uploaded", dbResponse.data); //
         resetForm();
 
     } catch (error) {
         console.error("Error saving match:", error);
         alert("Error: Could not save match.");
-        if (error.response && error.response.status === 401) {
-            router.push('/login');
-        }
     }
 }
 

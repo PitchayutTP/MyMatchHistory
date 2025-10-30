@@ -54,7 +54,6 @@ const handleLogin = async () => {
 
 <template>
   <div class="h-screen flex flex-col">
-    <nav class="bg-white-100 h-20"></nav>
 
     <div
       class="flex-1 flex items-center justify-center relative" 
