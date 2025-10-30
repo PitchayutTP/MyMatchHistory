@@ -118,3 +118,78 @@ const handleLogout = async () => {
     router.push("/login");
 };
 </script>
+
+<script setup>
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router"; // ⭐️ เพิ่ม useRouter
+
+const search = defineModel("search");
+const isDropdownOpen = ref(false);
+const router = useRouter(); // ⭐️ เพิ่ม useRouter
+
+const toggleDropdown = () => {
+    isDropdownOpen.value = !isDropdownOpen.value;
+};
+
+const username = ref("...");
+
+onMounted(async () => {
+    try {
+        // ⭐️ 1. ดึง Token
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+            username.value = "Guest";
+            // ไม่ต้อง redirect ทันที เผื่ออยู่หน้า Login
+            return;
+        }
+
+        // ⭐️ 2. ส่ง Token ไปใน Header
+        const response = await fetch(
+            `${import.meta.env.VITE_API_BASE_URL}/api/me`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
+        }
+
+        const userData = await response.json();
+        username.value = userData.username;
+    } catch (error) {
+        console.error("Failed to fetch user:", error);
+        username.value = "Guest";
+        // ถ้า Error 401 (Token หมดอายุ)
+        if (error.message.includes("401") || (error.response && error.response.status === 401)) {
+            router.push("/login");
+        }
+    }
+});
+
+const handleLogout = async () => {
+    const token = localStorage.getItem("authToken");
+    isDropdownOpen.value = false;
+
+    try {
+        // โค้ดส่วนนี้ของคุณถูกต้องอยู่แล้ว
+        await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/logout`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+    } catch (error) {
+        console.error("Server logout failed:", error);
+    }
+
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userId");
+
+    router.push("/login");
+};
+</script>
