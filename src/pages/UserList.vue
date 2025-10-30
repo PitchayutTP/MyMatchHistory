@@ -9,7 +9,7 @@ const error = ref(null);
 
 async function fetchUsers() {
   try {
-    const response = await axios.get("http://localhost:3000/api/userlist");
+    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/userlist`);
     users.value = response.data;
     console.log("Fetched users:", users.value);
   } catch (err) {

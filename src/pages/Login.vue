@@ -22,7 +22,7 @@ const handleLogin = async () => {
   error.value = ""; // 6. ล้าง error เก่า
 
   try {
-    const response = await axios.post("http://localhost:3000/api/login", {
+    const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/login`, {
       username: username.value,
       password: password.value,
     });

@@ -212,7 +212,7 @@ async function handleSubmit() {
 
     try {
         const response = await axios.post(
-            "http://localhost:3000/api/videos",
+            `${import.meta.env.VITE_API_BASE_URL}/api/videos`,
             formData,
             {
                 headers: {

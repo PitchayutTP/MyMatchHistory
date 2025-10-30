@@ -107,7 +107,7 @@ const videoList = ref([]);
 
 async function fetchVideos() {
     try {
-        const response = await axios.get("http://localhost:3000/api/videos");
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/videos`);
         videoList.value = response.data;
     } catch (error) {
         console.error("Error fetching videos:", error);
@@ -127,7 +127,7 @@ async function deleteItem(id) {
     }
 
     try {
-        await axios.delete(`http://localhost:3000/api/videos/${id}`);
+        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/videos/${id}`);
         videoList.value = videoList.value.filter((video) => video.id !== id);
         console.log("ลบวิดีโอ ID:", id);
     } catch (error) {
@@ -150,7 +150,7 @@ function closeModal() {
 async function saveChanges(updatedItem) {
     try {
         const response = await axios.put(
-            `http://localhost:3000/api/videos/${updatedItem.id}`,
+            `${import.meta.env.VITE_API_BASE_URL}/api/videos/${updatedItem.id}`,
             updatedItem,
         );
 

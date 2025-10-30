@@ -19,7 +19,7 @@ onMounted(async () => {
   error.value = null;
 
   try {
-    const apiUrl = "http://localhost:3000";
+    const apiUrl = `${import.meta.env.VITE_API_BASE_URL}`;
     const [userResponse, historyResponse] = await Promise.all([
       axios.get(`${apiUrl}/api/users/${userId}`),
       axios.get(`${apiUrl}/api/history/${userId}`)
@@ -38,7 +38,7 @@ onMounted(async () => {
 async function handleDelete(itemId) {
   if (confirm(`คุณต้องการลบรายการ ID: ${itemId} ใช่หรือไม่?`)) {
     try {
-      await axios.delete(`http://localhost:3000/api/history/${itemId}`);
+      await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/history/${itemId}`);
       historyItems.value = historyItems.value.filter(
         (item) => item.id !== itemId
       );
@@ -57,7 +57,7 @@ function openEditModal(item) {
 async function handleSaveEdit() {
   try {
     const response = await axios.put(
-      `http://localhost:3000/api/history/${editingItem.value.id}`,
+      `${import.meta.env.VITE_API_BASE_URL}/api/history/${editingItem.value.id}`,
       editingItem.value
     );
     const index = historyItems.value.findIndex(

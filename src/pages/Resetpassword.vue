@@ -27,7 +27,7 @@ const handleResetPassword = async () => {
 
   try {
     // 2. ยิง API ไปยัง Mock Server (ใช้ path ที่เราจะสร้าง)
-    await axios.post("http://localhost:3000/api/reset-password", {
+    await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/reset-password`, {
       username: username.value,
       password: password.value,
     });

@@ -37,7 +37,7 @@ const handleRegister = async () => {
 
   try {
     // 7. ยิง API ไปยัง Backend (เปลี่ยน URL นี้)
-    await axios.post("http://localhost:3000/api/register", {
+    await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/register`, {
       username: username.value,
       email: email.value,
       password: password.value,

@@ -52,7 +52,7 @@ const filteredVideos = computed(() => {
 
 async function fetchVideos() {
     try {
-        const response = await axios.get("http://localhost:3000/api/videos");
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/videos`);
         videos.value = response.data;
     } catch (error) {
         console.error("Error fetching videos:", error);

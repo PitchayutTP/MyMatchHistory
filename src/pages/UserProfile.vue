@@ -28,7 +28,7 @@ onMounted(async () => {
   userId.value = storedUserId;
 
   try {
-    const response = await axios.get(`http://localhost:3000/api/profile/${storedUserId}`);
+    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/profile/${storedUserId}`);
     form.value = response.data;
   } catch (err) {
     console.error("Error fetching profile:", err);
@@ -43,7 +43,7 @@ const handleSubmit = async () => {
   if (!userId.value) return;
 
   try {
-    await axios.patch(`http://localhost:3000/api/profile/${userId.value}`, form.value);
+    await axios.patch(`${import.meta.env.VITE_API_BASE_URL}/api/profile/${userId.value}`, form.value);
     
     alert("อัปเดตข้อมูลสำเร็จ!");
 

@@ -86,7 +86,7 @@ const username = ref("...");
 
 onMounted(async () => {
     try {
-        const response = await fetch("http://localhost:3000/api/me");
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/me`);
 
         if (!response.ok) {
             throw new Error("Network response was not ok");
@@ -106,7 +106,7 @@ const handleLogout = async () => {
 
   try {
 
-    await fetch("http://localhost:3000/api/logout", {
+    await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/logout`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
