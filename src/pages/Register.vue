@@ -35,8 +35,8 @@ const handleRegister = async () => {
     return;
   }
 
-  try {
-    // 7. ยิง API ไปยัง Backend (เปลี่ยน URL นี้)
+try {
+    // 7. ยิง API (เวอร์ชัน SignUpCommand)
     await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/register`, {
       username: username.value,
       email: email.value,
@@ -44,28 +44,19 @@ const handleRegister = async () => {
     });
 
     // 8. ลงทะเบียนสำเร็จ
-    alert("ลงทะเบียนสำเร็จ! กรุณาเข้าสู่ระบบ");
+    alert("ลงทะเบียนสำเร็จ! กรุณาตรวจสอบ Email ของคุณเพื่อรับรหัสยืนยัน");
 
-    // 9. พาไปหน้า Login
+    // 9. พาไปหน้า Login (หรือหน้า Confirm ถ้าคุณสร้าง)
     router.push("/login");
 
   } catch (err) {
     // 10. จัดการ Error (แบบใหม่ที่ซ่อมแล้ว)
     console.error("Register failed:", err);
-
     if (err.response && err.response.data && err.response.data.detail) {
-      // ถ้า Backend (Lambda) ส่ง {"detail":"..."} มา
       error.value = err.response.data.detail;
-
-    } else if (err.response && err.response.data) {
-      // ถ้า Backend ส่งอะไรอย่างอื่นมา
-      error.value = JSON.stringify(err.response.data);
-
     } else {
-      // ถ้าเป็น Network Error
-      error.value = "เกิดข้อผิดพลาดในการลงทะเบียน (Network Error)";
+      error.value = "เกิดข้อผิดพลาดในการลงทะเบียน";
     }
-
   } finally {
     // 11. สิ้นสุด Loading
     isLoading.value = false;
