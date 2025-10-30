@@ -1,6 +1,6 @@
 <template>
     <nav class="bg-white shadow-md px-4 py-2 flex items-center justify-between">
-        <router-link to="/" class="text-2xl font-bold text-orange-600">My History</router-link>
+        <div class="text-2xl font-bold text-orange-600">My History</div>
 
         <div class="flex-1 px-4">
             <input type="text" placeholder="Search..."
@@ -8,11 +8,6 @@
         </div>
 
         <div class="flex items-center space-x-4">
-            <router-link v-if="isAdmin" to="/userlist"
-                class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">
-                Admin
-            </router-link>
-
             <router-link to="/upload"
                 class="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition">
                 Upload
@@ -47,77 +42,6 @@
         </div>
     </nav>
 </template>
-
-<script setup>
-import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
-
-const search = defineModel("search");
-const isDropdownOpen = ref(false);
-const router = useRouter();
-
-const toggleDropdown = () => {
-    isDropdownOpen.value = !isDropdownOpen.value;
-};
-
-const username = ref("...");
-const isAdmin = ref(false); // ⭐️ เพิ่ม state
-
-onMounted(async () => {
-    // ⭐️ ตรวจสอบสิทธิ์ Admin ตอนโหลดหน้า
-    isAdmin.value = localStorage.getItem("isAdmin") === "true";
-
-    try {
-        const token = localStorage.getItem("authToken");
-        if (!token) {
-            username.value = "Guest";
-            return;
-        }
-
-        const response = await fetch(
-            `${import.meta.env.VITE_API_BASE_URL}/api/me`,
-            { headers: { 'Authorization': `Bearer ${token}` } }
-        );
-
-        if (!response.ok) {
-            throw new Error(`Network response was not ok (${response.status})`);
-        }
-
-        const userData = await response.json();
-        username.value = userData.username;
-    } catch (error) {
-        console.error("Failed to fetch user:", error);
-        username.value = "Guest";
-        if (error.message.includes("401") || (error.response && error.response.status === 401)) {
-            router.push("/login");
-        }
-    }
-});
-
-const handleLogout = async () => {
-    const token = localStorage.getItem("authToken");
-    isDropdownOpen.value = false;
-
-    try {
-        await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/logout`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-    } catch (error) {
-        console.error("Server logout failed:", error);
-    }
-
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("isAdmin"); // ⭐️ ลบสิทธิ์ Admin ตอน Logout
-
-    router.push("/login");
-};
-</script>
 
 <script setup>
 import { ref, onMounted } from "vue";
