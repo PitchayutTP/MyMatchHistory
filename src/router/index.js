@@ -9,6 +9,18 @@ import UserList from "../pages/UserList.vue";
 import UserDetail from "../pages/UserDetail.vue";
 import UserProfile from "../pages/UserProfile.vue";
 
+// ⭐️ สร้าง "การ์ดเฝ้าประตู"
+const requireAdmin = (to, from, next) => {
+  const isAdmin = localStorage.getItem("isAdmin") === "true";
+  const isAuthenticated = !!localStorage.getItem("authToken");
+
+  if (isAuthenticated && isAdmin) {
+    next(); // อนุญาตให้ผ่าน
+  } else {
+    next("/"); // ถ้าไม่ใช่ Admin, เด้งกลับหน้า Home
+  }
+};
+
 const routes = [
   { path: "/", name: "home", component: Home },
   { path: "/upload", name: "upload", component: Upload },
@@ -16,9 +28,21 @@ const routes = [
   { path: "/login", name: "login", component: Login },
   { path: "/register", name: "register", component: Register },
   { path: "/resetpassword", name: "resetpassword", component: Resetpassword },
-  { path: "/userlist", name: "userlist", component: UserList },
-  { path: "/user/:id", name: "userdetail", component: UserDetail },
   { path: "/profile", name: "userprofile", component: UserProfile },
+
+  // ⭐️ เพิ่มการ์ดเฝ้าประตูให้หน้า Admin
+  {
+    path: "/userlist",
+    name: "userlist",
+    component: UserList,
+    beforeEnter: requireAdmin // ⭐️
+  },
+  {
+    path: "/user/:id",
+    name: "userdetail",
+    component: UserDetail,
+    beforeEnter: requireAdmin // ⭐️
+  },
 ];
 
 const router = createRouter({
