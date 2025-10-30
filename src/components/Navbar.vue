@@ -45,31 +45,33 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router"; // ⭐️ เพิ่ม useRouter
+import { useRouter } from "vue-router";
+import axios from "axios"; // ⭐️ 1. Import axios (ดีกว่า fetch สำหรับ JSON)
 
 const search = defineModel("search");
 const isDropdownOpen = ref(false);
-const router = useRouter(); // ⭐️ เพิ่ม useRouter
+const router = useRouter();
 
 const toggleDropdown = () => {
     isDropdownOpen.value = !isDropdownOpen.value;
 };
 
-const username = ref("...");
+const username = ref("..."); // ตัวแปรนี้จะใช้เก็บชื่อจริง
 
 onMounted(async () => {
     try {
-        // ⭐️ 1. ดึง Token
+        // ⭐️ 2. ดึง Token และ UserId (จาก localStorage)
         const token = localStorage.getItem("authToken");
-        if (!token) {
+        const userId = localStorage.getItem("userId"); // เราต้องการ id เพื่อเรียก profile
+
+        if (!token || !userId) {
             username.value = "Guest";
-            // ไม่ต้อง redirect ทันที เผื่ออยู่หน้า Login
             return;
         }
 
-        // ⭐️ 2. ส่ง Token ไปใน Header
-        const response = await fetch(
-            `${import.meta.env.VITE_API_BASE_URL}/api/me`,
+        // ⭐️ 3. เปลี่ยนไปเรียก API /api/profile/:id (เหมือนหน้า UserProfile)
+        const response = await axios.get(
+            `${import.meta.env.VITE_API_BASE_URL}/api/profile/${userId}`,
             {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -77,17 +79,23 @@ onMounted(async () => {
             }
         );
 
-        if (!response.ok) {
-            throw new Error("Network response was not ok");
+        // ⭐️ 4. ตั้งค่าการแสดงผลชื่อ
+        const profileData = response.data;
+        if (profileData && profileData.firstname && profileData.lastname) {
+            // ถ้ามีทั้งชื่อและนามสกุล
+            username.value = `${profileData.firstname} ${profileData.lastname}`;
+        } else if (profileData && profileData.firstname) {
+            // ถ้ามีแค่ชื่อ
+            username.value = profileData.firstname;
+        } else {
+            // ถ้ายังไม่กรอกโปรไฟล์ (Fallback)
+            username.value = "User"; // หรือคุณจะให้ไปเรียก /api/me เพื่อเอา Email ก็ได้
         }
 
-        const userData = await response.json();
-        username.value = userData.username;
     } catch (error) {
-        console.error("Failed to fetch user:", error);
-        username.value = "Guest";
-        // ถ้า Error 401 (Token หมดอายุ)
-        if (error.message.includes("401") || (error.response && error.response.status === 401)) {
+        console.error("Failed to fetch user profile:", error);
+        username.value = "Guest"; // ถ้า API ล้มเหลว
+        if (error.response && error.response.status === 401) {
             router.push("/login");
         }
     }
@@ -98,7 +106,6 @@ const handleLogout = async () => {
     isDropdownOpen.value = false;
 
     try {
-        // โค้ดส่วนนี้ของคุณถูกต้องอยู่แล้ว
         await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/logout`, {
             method: "POST",
             headers: {
@@ -106,13 +113,13 @@ const handleLogout = async () => {
                 "Authorization": `Bearer ${token}`
             }
         });
-
     } catch (error) {
         console.error("Server logout failed:", error);
     }
 
     localStorage.removeItem("authToken");
     localStorage.removeItem("userId");
+    localStorage.removeItem("isAdmin"); // (ลบสิทธิ์ Admin ถ้ามี)
 
     router.push("/login");
 };
