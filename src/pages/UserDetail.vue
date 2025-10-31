@@ -157,8 +157,6 @@ async function saveChanges(updatedItem) {
 
       <div v-else-if="user">
         <div class="bg-white p-6 rounded-lg shadow-md flex items-start space-x-6">
-          <img :src="user.imageUrl || 'https://via.placeholder.com/150'" :alt="user.firstname"
-            class="w-32 h-32 rounded-full object-cover" />
           <div>
             <h1 class="text-4xl font-bold text-gray-800">
               {{ user.firstname || user.email }} {{ user.lastname }}
@@ -195,7 +193,7 @@ async function saveChanges(updatedItem) {
                 </p>
                 <p class="text-sm text-gray-500 mt-1">
                   Date: <span v-if="video.match_date">{{ new Date(video.match_date).toLocaleDateString("th-TH")
-                    }}</span>
+                  }}</span>
                 </p>
               </div>
 
