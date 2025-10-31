@@ -11,16 +11,14 @@ const code = ref("");
 const isLoading = ref(false);
 const error = ref("");
 const router = useRouter();
-const route = useRoute(); // ⭐️ 1. เพื่อดึง Email จาก URL
+const route = useRoute();
 
-// ⭐️ 2. เมื่อหน้าโหลด, ดึง Email จาก URL ที่ Register ส่งมา
 onMounted(() => {
     if (route.query.email) {
         email.value = route.query.email;
     }
 });
 
-// --- Function ---
 const handleConfirm = async () => {
     isLoading.value = true;
     error.value = "";
@@ -32,18 +30,15 @@ const handleConfirm = async () => {
     }
 
     try {
-        // 3. ยิง API ไปยัง /api/confirm
         await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/confirm`, {
             email: email.value,
             code: code.value,
         });
 
-        // 4. สำเร็จ
         alert("ยืนยันบัญชีสำเร็จ! กรุณาเข้าสู่ระบบ");
         router.push("/login");
 
     } catch (err) {
-        // 5. จัดการ Error
         console.error("Confirmation failed:", err);
         if (err.response && err.response.data && err.response.data.detail) {
             if (err.response.data.detail.includes("CodeMismatchException")) {

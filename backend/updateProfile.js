@@ -7,7 +7,7 @@ export const handler = async (event) => {
     const data = JSON.parse(event.body);
     const command = new PutCommand({
         TableName: "Profiles",
-        Item: { ...data, id: id }, // บันทึกข้อมูลใหม่ทับลงไป
+        Item: { ...data, id: id },
     });
     try {
         await docClient.send(command);

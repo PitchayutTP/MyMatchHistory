@@ -183,22 +183,16 @@ async function handleSubmit() {
             router.push('/login');
             return;
         }
-
-        // --- 1. อัปโหลด Thumbnail ---
         const thumbnailUrls = await getUploadUrl(token, form.thumbnailFile);
         await axios.put(thumbnailUrls.uploadURL, form.thumbnailFile, {
             headers: { 'Content-Type': form.thumbnailFile.type }
         });
-        const thumbnailUrl = thumbnailUrls.videoUrl; // URL จริงของภาพปก
-
-        // --- 2. อัปโหลด Video ---
+        const thumbnailUrl = thumbnailUrls.videoUrl;
         const videoUrls = await getUploadUrl(token, form.clip);
         await axios.put(videoUrls.uploadURL, form.clip, {
             headers: { 'Content-Type': form.clip.type }
         });
-        const videoUrl = videoUrls.videoUrl; // URL จริงของวิดีโอ
-
-        // --- 3. บันทึกข้อมูล (JSON) ลง DB ---
+        const videoUrl = videoUrls.videoUrl;
         const videoData = {
             user_id: form.user_id,
             sport_id: form.sport_id,
@@ -210,9 +204,8 @@ async function handleSubmit() {
             notes: form.notes,
             videoSrc: videoUrl,
             title: form.title,
-            thumbnail: thumbnailUrl, // ⭐️ ใช้ URL จริงของภาพปก
+            thumbnail: thumbnailUrl,
         };
-
         const dbResponse = await axios.post(
             `${import.meta.env.VITE_API_BASE_URL}/api/videos`,
             videoData,

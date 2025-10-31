@@ -16,7 +16,7 @@
 defineProps({
     title: String,
     thumbnail: String,
-    uploaderEmail: String, // ⭐️ 2. เพิ่ม Prop นี้เพื่อรับ Email ⭐️
+    uploaderEmail: String,
 });
 </script>
 

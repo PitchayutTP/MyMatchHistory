@@ -17,8 +17,6 @@ const error = ref("");
 const userId = ref(null);
 const router = useRouter();
 const isLoading = ref(true);
-
-// ⭐️ ฟังก์ชันช่วยสร้าง Header
 const getAuthHeaders = () => {
   const token = localStorage.getItem("authToken");
   if (!token) {
@@ -43,7 +41,7 @@ onMounted(async () => {
 
     const response = await axios.get(
       `${import.meta.env.VITE_API_BASE_URL}/api/profile/${storedUserId}`,
-      { headers } // ⭐️ ส่ง Header
+      { headers }
     );
     form.value = response.data;
   } catch (err) {
@@ -68,11 +66,11 @@ const handleSubmit = async () => {
     await axios.patch(
       `${import.meta.env.VITE_API_BASE_URL}/api/profile/${userId.value}`,
       form.value,
-      { headers } // ⭐️ ส่ง Header
+      { headers }
     );
 
     alert("อัปเดตข้อมูลสำเร็จ!");
-    router.push("/"); 
+    router.push("/");
 
   } catch (err) {
     console.error("Error updating profile:", err);

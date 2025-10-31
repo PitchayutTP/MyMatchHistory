@@ -3,7 +3,6 @@ import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import Navbar from "../components/Navbar.vue";
 import axios from "axios";
-// ⭐️ 1. Import Modal ที่จำเป็น
 import VideoDetailModal from "../components/VideoDetailModal.vue";
 import EditModal from "../components/EditModal.vue";
 
@@ -15,15 +14,11 @@ const user = ref(null);
 const videos = ref([]);
 const isLoading = ref(true);
 const error = ref(null);
-
-// ⭐️ 2. เพิ่ม State สำหรับ Modal (ทั้งสองแบบ)
 const showVideoDetail = ref(false);
 const selectedVideo = ref(null);
-const isModalOpen = ref(false); // (สำหรับ EditModal)
-const currentItemToEdit = ref(null); // (สำหรับ EditModal)
+const isModalOpen = ref(false);
+const currentItemToEdit = ref(null);
 
-
-// ⭐️ (ฟังก์ชัน Get Header เหมือนเดิม)
 const getAuthHeaders = () => {
   const token = localStorage.getItem("authToken");
   if (!token) {
@@ -33,7 +28,6 @@ const getAuthHeaders = () => {
   return { 'Authorization': `Bearer ${token}` };
 };
 
-// ⭐️ (onMounted เหมือนเดิม)
 onMounted(async () => {
   isLoading.value = true;
   error.value = null;
@@ -57,9 +51,6 @@ onMounted(async () => {
     isLoading.value = false;
   }
 });
-
-// ⭐️ 3. เพิ่มฟังก์ชันทั้งหมดจาก History.vue (Delete, Edit, Save) ⭐️
-// (ฟังก์ชันสำหรับเปิด Modal "ดู" วิดีโอ)
 function openVideoDetail(video) {
   selectedVideo.value = video;
   showVideoDetail.value = true;
@@ -69,7 +60,6 @@ function closeVideoDetail() {
   selectedVideo.value = null;
 }
 
-// (ฟังก์ชันสำหรับ "ลบ" วิดีโอ)
 async function deleteItem(id) {
   if (!confirm("คุณ (Admin) แน่ใจหรือไม่ว่าต้องการลบรายการนี้?")) {
     return;
@@ -81,15 +71,12 @@ async function deleteItem(id) {
       `${import.meta.env.VITE_API_BASE_URL}/api/videos/${id}`,
       { headers }
     );
-    // ⭐️ แก้ไข: ต้องอัปเดต 'videos' (ไม่ใช่ videoList)
     videos.value = videos.value.filter((video) => video.id !== id);
   } catch (error) {
     console.error("Error deleting video:", error);
     alert("ลบข้อมูลไม่สำเร็จ");
   }
 }
-
-// (ฟังก์ชันสำหรับเปิด Modal "แก้ไข")
 function editItem(video) {
   const itemToEdit = {
     ...video,
@@ -100,14 +87,10 @@ function editItem(video) {
   currentItemToEdit.value = itemToEdit;
   isModalOpen.value = true;
 }
-
-// (ฟังก์ชันสำหรับปิด Modal "แก้ไข")
 function closeModal() {
   isModalOpen.value = false;
   currentItemToEdit.value = null;
 }
-
-// (ฟังก์ชันสำหรับ "บันทึก" การแก้ไข)
 async function saveChanges(updatedItem) {
   try {
     const headers = getAuthHeaders();
@@ -128,8 +111,6 @@ async function saveChanges(updatedItem) {
       itemToSave,
       { headers }
     );
-
-    // ⭐️ แก้ไข: ต้องอัปเดต 'videos' (ไม่ใช่ videoList)
     const index = videos.value.findIndex((v) => v.id === itemToSave.id);
     if (index !== -1) {
       videos.value[index] = response.data;

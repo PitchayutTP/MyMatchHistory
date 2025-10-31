@@ -5,7 +5,6 @@ const docClient = DynamoDBDocumentClient.from(client);
 export const handler = async (event) => {
     const { id } = event.pathParameters;
     const data = JSON.parse(event.body);
-    // ตรวจสอบว่า id ใน path กับ body ตรงกัน
     if (data.id !== id) {
         return { statusCode: 400, headers: { "Access-Control-Allow-Origin": "*" }, body: "ID mismatch" };
     }

@@ -11,14 +11,10 @@ export const handler = async (event) => {
 
         const users = response.Users.map(user => {
             const emailAttr = user.Attributes.find(a => a.Name === 'email');
-
-            // ⭐️ 1. แก้ไข: ดึง "sub" (ID จริง) ออกมา
             const subAttr = user.Attributes.find(a => a.Name === 'sub');
 
             return {
-                // ⭐️ 2. แก้ไข: ใช้ "sub" เป็น ID สำหรับ Link
                 id: subAttr ? subAttr.Value : user.Username,
-
                 name: emailAttr ? emailAttr.Value : user.Username,
                 imageUrl: 'https://via.placeholder.com/150'
             };

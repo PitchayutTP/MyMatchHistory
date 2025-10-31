@@ -7,7 +7,7 @@ const docClient = DynamoDBDocumentClient.from(client);
 export const handler = async (event) => {
     const headers = { "Access-Control-Allow-Origin": "*" };
     try {
-        const { id } = event.pathParameters; // นี่คือ user_id (SUB)
+        const { id } = event.pathParameters;
 
         const command = new QueryCommand({
             TableName: "Videos",

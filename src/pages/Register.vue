@@ -5,7 +5,6 @@ import bgImage from "../assets/tennis.jpg";
 import { useRouter } from "vue-router";
 import axios from "axios";
 
-// --- State (ลบ username ออก) ---
 const email = ref("");
 const password = ref("");
 const confirmPassword = ref("");
@@ -33,15 +32,9 @@ const handleRegister = async () => {
       email: email.value,
       password: password.value,
     });
-
-    // 8. ⭐️ แก้ไข Alert ⭐️
     alert("ลงทะเบียนสำเร็จ! กรุณาตรวจสอบ Email ของคุณเพื่อรับรหัสยืนยัน");
-
-    // 9. ⭐️ พาไปหน้า Confirm (พร้อมส่ง Email ไปด้วย) ⭐️
     router.push({ path: "/confirm", query: { email: email.value } });
-
   } catch (err) {
-    // 10. (ส่วน Error ที่ซ่อมแล้ว)
     console.error("Register failed:", err);
     if (err.response && err.response.data && err.response.data.detail) {
       error.value = err.response.data.detail;

@@ -62,10 +62,9 @@ const toggleDropdown = () => {
 };
 
 const username = ref("...");
-const isAdmin = ref(false); // ⭐️ 3. เพิ่ม state
+const isAdmin = ref(false);
 
 onMounted(async () => {
-    // ⭐️ 4. ตรวจสอบสิทธิ์ Admin ตอนโหลดหน้า
     isAdmin.value = localStorage.getItem("isAdmin") === "true";
 
     try {
@@ -92,7 +91,6 @@ onMounted(async () => {
         } else if (profileData && profileData.firstname) {
             username.value = profileData.firstname;
         } else {
-            // Fallback: (ถ้ายังไม่กรอกโปรไฟล์ ให้ใช้ Email จาก Profile ที่เราสร้างอัตโนมัติ)
             username.value = profileData.email || "User";
         }
 
@@ -123,7 +121,7 @@ const handleLogout = async () => {
 
     localStorage.removeItem("authToken");
     localStorage.removeItem("userId");
-    localStorage.removeItem("isAdmin"); // ⭐️ 5. ลบสิทธิ์ Admin ตอน Logout
+    localStorage.removeItem("isAdmin");
 
     router.push("/login");
 };

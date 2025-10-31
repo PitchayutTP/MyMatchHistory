@@ -86,7 +86,6 @@ import EditModal from "../components/EditModal.vue";
 const videoList = ref([]);
 const router = useRouter();
 
-// ฟังก์ชันช่วยสร้าง Header
 const getAuthHeaders = () => {
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -100,10 +99,8 @@ async function fetchVideos() {
     try {
         const headers = getAuthHeaders();
         if (!headers) return;
-
-        // ⭐️ 1. แก้ไข URL: เปลี่ยนจาก /videos เป็น /my-videos
         const response = await axios.get(
-            `${import.meta.env.VITE_API_BASE_URL}/api/my-videos`, // ⭐️ URL ใหม่
+            `${import.meta.env.VITE_API_BASE_URL}/api/my-videos`,
             { headers }
         );
         videoList.value = response.data;
@@ -147,12 +144,11 @@ async function deleteItem(id) {
 }
 
 function editItem(video) {
-    // ⭐️ แปลงชื่อ field ให้ตรงกับที่ EditModal คาดหวัง
     const itemToEdit = {
         ...video,
-        sport: video.sport_id, // แปลง sport_id -> sport
-        note: video.notes,     // แปลง notes -> note
-        date: video.match_date // แปลง match_date -> date
+        sport: video.sport_id,
+        note: video.notes,
+        date: video.match_date
     };
 
     currentItemToEdit.value = itemToEdit;
@@ -170,12 +166,11 @@ async function saveChanges(updatedItem) {
         const headers = getAuthHeaders();
         if (!headers) return;
 
-        // ⭐️ แปลงชื่อ field กลับไปเป็นแบบที่ DB เก็บ
         const itemToSave = {
             ...updatedItem,
-            sport_id: updatedItem.sport, // แปลง sport -> sport_id
-            notes: updatedItem.note,     // แปลง note -> notes
-            match_date: updatedItem.date // แปลง date -> match_date
+            sport_id: updatedItem.sport,
+            notes: updatedItem.note,
+            match_date: updatedItem.date
         };
         delete itemToSave.sport;
         delete itemToSave.note;

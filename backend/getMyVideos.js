@@ -6,16 +6,12 @@ const docClient = DynamoDBDocumentClient.from(client);
 
 export const handler = async (event) => {
     const headers = { "Access-Control-Allow-Origin": "*" };
-
     try {
-        // 1. ⭐️ ดึง User ID (sub) จาก Token ที่ Cognito Authorizer ส่งมา
         const userId = event.requestContext.authorizer.claims.sub;
-
-        // 2. ⭐️ สร้างคำสั่ง Query โดยใช้ Index ที่เราสร้าง
         const command = new QueryCommand({
             TableName: "Videos",
-            IndexName: "user_id-index", // ⭐️ ชื่อ Index ที่เราสร้างในขั้นตอนที่ 1
-            KeyConditionExpression: "user_id = :uid", // ⭐️ ค้นหาเฉพาะ user_id ที่ตรงกัน
+            IndexName: "user_id-index",
+            KeyConditionExpression: "user_id = :uid",
             ExpressionAttributeValues: {
                 ":uid": userId
             }
@@ -26,7 +22,7 @@ export const handler = async (event) => {
         return {
             statusCode: 200,
             headers: headers,
-            body: JSON.stringify(response.Items), // ⭐️ ส่งคืนเฉพาะวิดีโอของ User นั้น
+            body: JSON.stringify(response.Items),
         };
 
     } catch (error) {
