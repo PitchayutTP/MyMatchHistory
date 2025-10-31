@@ -33,13 +33,13 @@
                             Opponent:
                             <span class="font-medium">{{
                                 video.opponent
-                                }}</span>
+                            }}</span>
                         </p>
                         <p class="text-sm text-gray-600">
                             Location:
                             <span class="font-medium">{{
                                 video.location
-                                }}</span>
+                            }}</span>
                         </p>
                         <p class="text-sm text-gray-600">
                             result:
@@ -99,8 +99,9 @@ async function fetchVideos() {
         const headers = getAuthHeaders();
         if (!headers) return;
 
+        // ⭐️ 1. แก้ไข URL: เปลี่ยนจาก /videos เป็น /my-videos
         const response = await axios.get(
-            `${import.meta.env.VITE_API_BASE_URL}/api/videos`,
+            `${import.meta.env.VITE_API_BASE_URL}/api/my-videos`, // ⭐️ URL ใหม่
             { headers }
         );
         videoList.value = response.data;
