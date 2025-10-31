@@ -7,6 +7,7 @@ import History from "../pages/History.vue";
 import UserList from "../pages/UserList.vue";
 import UserDetail from "../pages/UserDetail.vue";
 import UserProfile from "../pages/UserProfile.vue";
+import Confirm from "../pages/Confirm.vue";
 
 // ⭐️ 1. สร้าง "การ์ดเฝ้าประตู"
 const requireAdmin = (to, from, next) => {
@@ -35,6 +36,7 @@ const routes = [
   { path: "/", name: "home", component: Home, beforeEnter: requireAuth },
   { path: "/upload", name: "upload", component: Upload, beforeEnter: requireAuth },
   { path: "/history", name: "history", component: History, beforeEnter: requireAuth },
+  { path: "/confirm", name: "confirm", component: Confirm },
   { path: "/profile", name: "userprofile", component: UserProfile, beforeEnter: requireAuth },
 
   // ⭐️ 4. เพิ่มการ์ด requireAdmin

@@ -17,14 +17,11 @@ const handleRegister = async () => {
   isLoading.value = true;
   error.value = "";
 
-  // 1. ตรวจสอบรหัสผ่าน
   if (password.value !== confirmPassword.value) {
     error.value = "รหัสผ่านและรหัสผ่านยืนยันไม่ตรงกัน";
     isLoading.value = false;
     return;
   }
-
-  // 2. ตรวจสอบว่ากรอกครบ (ลบ username ออก)
   if (!email.value || !password.value) {
     error.value = "กรุณากรอกข้อมูลให้ครบถ้วน";
     isLoading.value = false;
@@ -32,27 +29,25 @@ const handleRegister = async () => {
   }
 
   try {
-    // 3. ยิง API (ลบ username ออก)
     await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/register`, {
       email: email.value,
       password: password.value,
     });
 
-    // 4. ลงทะเบียนสำเร็จ
-    alert("ลงทะเบียนสำเร็จ!");
+    // 8. ⭐️ แก้ไข Alert ⭐️
+    alert("ลงทะเบียนสำเร็จ! กรุณาตรวจสอบ Email ของคุณเพื่อรับรหัสยืนยัน");
 
-    // 5. พาไปหน้า Login
-    router.push("/login");
+    // 9. ⭐️ พาไปหน้า Confirm (พร้อมส่ง Email ไปด้วย) ⭐️
+    router.push({ path: "/confirm", query: { email: email.value } });
 
   } catch (err) {
-    // 6. จัดการ Error (ซ่อม Bug แล้ว)
+    // 10. (ส่วน Error ที่ซ่อมแล้ว)
     console.error("Register failed:", err);
     if (err.response && err.response.data && err.response.data.detail) {
       error.value = err.response.data.detail;
     } else {
       error.value = "เกิดข้อผิดพลาดในการลงทะเบียน";
     }
-
   } finally {
     isLoading.value = false;
   }
