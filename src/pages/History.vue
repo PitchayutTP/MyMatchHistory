@@ -27,7 +27,7 @@
                         </a>
                         <p class="text-sm text-gray-600 mt-1">
                             Sport:
-                            <span class="font-medium">{{ video.sport }}</span>
+                            <span class="font-medium">{{ video.sport_id }}</span>
                         </p>
                         <p class="text-sm text-gray-600">
                             Opponent:
@@ -47,12 +47,12 @@
                         </p>
                         <p class="text-sm text-gray-600">
                             note:
-                            <span class="font-medium">{{ video.note }}</span>
+                            <span class="font-medium">{{ video.notes }}</span>
                         </p>
                         <p class="text-xs text-gray-500 mt-1">
                             Date:
                             {{
-                                new Date(video.date).toLocaleDateString("th-TH")
+                                new Date(video.match_date).toLocaleDateString("th-TH")
                             }}
                         </p>
                     </div>
@@ -77,14 +77,14 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router"; // ⭐️ เพิ่ม useRouter
+import { useRouter } from "vue-router";
 import axios from "axios";
 import EditModal from "../components/EditModal.vue";
 
 const videoList = ref([]);
-const router = useRouter(); // ⭐️ เพิ่ม useRouter
+const router = useRouter();
 
-// ⭐️ ฟังก์ชันช่วยสร้าง Header (จะได้ไม่เขียนซ้ำ)
+// ฟังก์ชันช่วยสร้าง Header
 const getAuthHeaders = () => {
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -101,7 +101,7 @@ async function fetchVideos() {
 
         const response = await axios.get(
             `${import.meta.env.VITE_API_BASE_URL}/api/videos`,
-            { headers } // ⭐️ ส่ง Header
+            { headers }
         );
         videoList.value = response.data;
     } catch (error) {
@@ -130,7 +130,7 @@ async function deleteItem(id) {
 
         await axios.delete(
             `${import.meta.env.VITE_API_BASE_URL}/api/videos/${id}`,
-            { headers } // ⭐️ ส่ง Header
+            { headers }
         );
         videoList.value = videoList.value.filter((video) => video.id !== id);
         console.log("ลบวิดีโอ ID:", id);
@@ -144,7 +144,16 @@ async function deleteItem(id) {
 }
 
 function editItem(video) {
-    currentItemToEdit.value = { ...video };
+    // ⭐️ 4. แก้ไข: เปลี่ยนชื่อ field ให้ตรงกับข้อมูลจริงตอนส่งให้ Modal ⭐️
+    // (EditModal.vue คาดหวัง 'sport' และ 'note' และ 'date')
+    const itemToEdit = {
+        ...video,
+        sport: video.sport_id, // แปลง sport_id -> sport
+        note: video.notes,     // แปลง notes -> note
+        date: video.match_date // แปลง match_date -> date
+    };
+
+    currentItemToEdit.value = itemToEdit;
     isModalOpen.value = true;
     console.log("กำลังแก้ไขวิดีโอ:", video.title);
 }
@@ -159,18 +168,31 @@ async function saveChanges(updatedItem) {
         const headers = getAuthHeaders();
         if (!headers) return;
 
+        // ⭐️ 5. แก้ไข: แปลงชื่อ field กลับไปเป็นแบบที่ DB เก็บ ⭐️
+        const itemToSave = {
+            ...updatedItem,
+            sport_id: updatedItem.sport,
+            notes: updatedItem.note,
+            match_date: updatedItem.date
+        };
+        // ลบ field ที่ชื่อไม่ตรงออก
+        delete itemToSave.sport;
+        delete itemToSave.note;
+        delete itemToSave.date;
+
+
         const response = await axios.put(
-            `${import.meta.env.VITE_API_BASE_URL}/api/videos/${updatedItem.id}`,
-            updatedItem,
-            { headers } // ⭐️ ส่ง Header
+            `${import.meta.env.VITE_API_BASE_URL}/api/videos/${itemToSave.id}`,
+            itemToSave, // ส่งข้อมูลที่แปลงชื่อแล้ว
+            { headers }
         );
 
-        const index = videoList.value.findIndex((v) => v.id === updatedItem.id);
+        const index = videoList.value.findIndex((v) => v.id === itemToSave.id);
         if (index !== -1) {
-            videoList.value[index] = response.data;
+            videoList.value[index] = response.data; // รับข้อมูลใหม่จาก DB
         }
 
-        console.log("บันทึกข้อมูล ID:", updatedItem.id);
+        console.log("บันทึกข้อมูล ID:", itemToSave.id);
         closeModal();
     } catch (error) {
         console.error("Error saving video:", error);
