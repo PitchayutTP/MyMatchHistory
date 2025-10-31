@@ -2,16 +2,15 @@
 import Navbar from "../components/Navbar.vue";
 import { ref, onMounted } from "vue";
 import axios from "axios";
-import { useRouter } from "vue-router"; // ⭐️ เพิ่ม
+import { useRouter } from "vue-router";
 
 const users = ref([]);
 const isLoading = ref(true);
 const error = ref(null);
-const router = useRouter(); // ⭐️ เพิ่ม
+const router = useRouter();
 
 async function fetchUsers() {
   try {
-    // ⭐️ เพิ่ม Header
     const token = localStorage.getItem("authToken");
     if (!token) { router.push('/login'); return; }
 
@@ -50,8 +49,8 @@ onMounted(() => {
 
       <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
         <router-link v-for="user in users" :key="user.id" :to="`/user/${user.id}`"
-          class="bg-white rounded-lg shadow-md p-4 flex flex-col items-center hover:shadow-lg hover:scale-105 transition-all duration-200">
-          <img :src="user.imageUrl" :alt="user.name" class="w-24 h-24 rounded-full object-cover mb-3" />
+          class="bg-white rounded-lg shadow-md p-4 h-24 flex flex-col items-center justify-center hover:shadow-lg hover:scale-105 transition-all duration-200">
+
           <h3 class="font-semibold text-gray-800 text-center">
             {{ user.name }}
           </h3>
