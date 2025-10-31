@@ -4,7 +4,6 @@ import Register from "../pages/Register.vue";
 import Home from "../pages/Home.vue";
 import Upload from "../pages/Upload.vue";
 import History from "../pages/History.vue";
-import Resetpassword from "../pages/Resetpassword.vue";
 import UserList from "../pages/UserList.vue";
 import UserDetail from "../pages/UserDetail.vue";
 import UserProfile from "../pages/UserProfile.vue";
@@ -55,7 +54,6 @@ const routes = [
   // หน้าสาธารณะ (ไม่ต้องใช้การ์ด)
   { path: "/login", name: "login", component: Login },
   { path: "/register", name: "register", component: Register },
-  { path: "/resetpassword", name: "resetpassword", component: Resetpassword },
 ];
 
 const router = createRouter({
