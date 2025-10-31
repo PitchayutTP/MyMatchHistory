@@ -1,6 +1,8 @@
 <template>
     <nav class="bg-white shadow-md px-4 py-2 flex items-center justify-between">
-        <div class="text-2xl font-bold text-orange-600">My History</div>
+        <router-link to="/" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
+            <div class="text-2xl font-bold text-orange-600">My History</div>
+        </router-link>
 
         <div class="flex-1 px-4">
             <input type="text" placeholder="Search..."
