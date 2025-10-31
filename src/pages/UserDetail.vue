@@ -3,19 +3,18 @@ import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import Navbar from "../components/Navbar.vue";
 import axios from "axios";
-import VideoCard from "../components/VideoCard.vue"; // ⭐️ 1. Import VideoCard
-import VideoDetailModal from "../components/VideoDetailModal.vue"; // ⭐️ 1. Import Modal
+import VideoCard from "../components/VideoCard.vue"; // ⭐️ (Import ที่ผมลืมในครั้งก่อน)
+import VideoDetailModal from "../components/VideoDetailModal.vue"; // ⭐️ (Import ที่ผมลืมในครั้งก่อน)
 
 const route = useRoute();
 const router = useRouter();
 const userId = route.params.id; // ⭐️ นี่คือ ID (SUB) ของ User ที่ Admin คลิก
 
 const user = ref(null);
-const videos = ref([]); // ⭐️ 2. เปลี่ยนชื่อจาก historyItems เป็น videos
+const videos = ref([]); // ⭐️ เปลี่ยนชื่อจาก historyItems เป็น videos
 const isLoading = ref(true);
 const error = ref(null);
 
-// ⭐️ (State สำหรับ Modal)
 const showVideoDetail = ref(false);
 const selectedVideo = ref(null);
 
@@ -39,14 +38,14 @@ onMounted(async () => {
 
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
-    // ⭐️ 3. เรียก API ที่เราสร้างไว้ (API Gateway)
+    // ⭐️ 3. แก้ไข API Path ตรงนี้ ⭐️
     const [userResponse, videosResponse] = await Promise.all([
-      axios.get(`${apiUrl}/api/profile/${userId}`, { headers }), // ⭐️ ใช้ /api/profile (ที่เชื่อมกับ Lambda getProfile)
-      axios.get(`${apiUrl}/api/history/${userId}`, { headers })  // ⭐️ /api/history/{id} (ที่เชื่อมกับ getVideosForUser)
+      axios.get(`${apiUrl}/api/profile/${userId}`, { headers }), // ⭐️ แก้จาก /users/ เป็น /profile/
+      axios.get(`${apiUrl}/api/history/${userId}`, { headers })
     ]);
 
     user.value = userResponse.data;
-    videos.value = videosResponse.data; // ⭐️ 4. เก็บข้อมูลใน videos
+    videos.value = videosResponse.data;
   } catch (err) {
     console.error("Error fetching user details:", err);
     error.value = "ไม่สามารถโหลดข้อมูลได้";
@@ -56,7 +55,7 @@ onMounted(async () => {
   }
 });
 
-// ⭐️ 5. ฟังก์ชันสำหรับเปิด/ปิด Modal (เหมือนหน้า Home)
+// ฟังก์ชันสำหรับเปิด/ปิด Modal
 function openVideoDetail(video) {
   selectedVideo.value = video;
   showVideoDetail.value = true;
@@ -65,7 +64,6 @@ function closeVideoDetail() {
   showVideoDetail.value = false;
   selectedVideo.value = null;
 }
-
 </script>
 
 <template>
