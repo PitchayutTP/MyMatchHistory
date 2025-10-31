@@ -1,6 +1,6 @@
 <template>
     <nav class="bg-white shadow-md px-4 py-2 flex items-center justify-between">
-        <router-link to="/" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition">
+        <router-link to="/">
             My History
         </router-link>
 
