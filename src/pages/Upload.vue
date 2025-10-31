@@ -8,7 +8,7 @@
                 <label for="title" class="block text-sm font-medium text-gray-700">ชื่อเรื่อง (Title)</label>
                 <input id="title" v-model="form.title" type="text"
                     class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
-                    placeholder="Enter match title" />
+                    placeholder="Enter match title" required />
             </div>
 
             <div>
@@ -64,6 +64,12 @@
             </div>
 
             <div>
+                <label for="thumbnail" class="block text-sm font-medium text-gray-700">อัพโหลดภาพปก (Thumbnail)</label>
+                <input id="thumbnail" ref="thumbnailInput" type="file" accept="image/*" @change="handleThumbnailChange"
+                    class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 cursor-pointer" />
+            </div>
+
+            <div>
                 <label for="clip" class="block text-sm font-medium text-gray-700">อัพคลิป</label>
                 <input id="clip" ref="fileInput" type="file" accept="video/*" @change="handleFileChange"
                     class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 cursor-pointer" />
@@ -89,12 +95,13 @@ import { useRouter } from "vue-router";
 import axios from "axios";
 
 const fileInput = ref(null);
+const thumbnailInput = ref(null);
 const emit = defineEmits(["uploaded", "close"]);
 const router = useRouter();
 
 const getInitialState = () => ({
-    user_id: localStorage.getItem("userId") || null, // ⭐️ ดึง userId ที่เก็บไว้
-    title: "", // ⭐️ 2. เพิ่ม Title
+    user_id: localStorage.getItem("userId") || null,
+    title: "",
     sport_id: null,
     match_date: "",
     location: "",
@@ -103,6 +110,7 @@ const getInitialState = () => ({
     score: "",
     notes: "",
     clip: null,
+    thumbnailFile: null,
 });
 
 const form = reactive(getInitialState());
@@ -116,7 +124,15 @@ function handleFileChange(event) {
     }
 }
 
-// (ฟังก์ชัน getAuthHeaders เหมือนเดิม)
+function handleThumbnailChange(event) {
+    const file = event.target.files[0];
+    if (file) {
+        form.thumbnailFile = file;
+    } else {
+        form.thumbnailFile = null;
+    }
+}
+
 const getAuthHeaders = (contentType = 'application/json') => {
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -129,43 +145,59 @@ const getAuthHeaders = (contentType = 'application/json') => {
     };
 };
 
-// ⭐️ แก้ไข handleSubmit
+async function getUploadUrl(token, file) {
+    const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/api/get-presigned-url`,
+        {
+            fileName: file.name,
+            fileType: file.type,
+        },
+        {
+            headers: { Authorization: `Bearer ${token}` }
+        }
+    );
+    return response.data;
+}
+
+
 async function handleSubmit() {
     if (!form.clip) {
         alert("Please select a video file.");
         return;
     }
-    // ⭐️ 3. เพิ่มการตรวจสอบ Title
+    if (!form.thumbnailFile) {
+        alert("Please select a thumbnail image.");
+        return;
+    }
     if (!form.title) {
         alert("Please enter a Title.");
         return;
     }
 
     try {
-        // ----- 1. ดึง Pre-signed URL จาก Backend -----
         const token = localStorage.getItem("authToken");
+        if (!token) {
+            router.push('/login');
+            return;
+        }
 
-        const presignedResponse = await axios.post(
-            `${import.meta.env.VITE_API_BASE_URL}/api/get-presigned-url`,
-            {
-                fileName: form.clip.name,
-                fileType: form.clip.type,
-            },
-            {
-                headers: { Authorization: `Bearer ${token}` }
-            }
-        );
+        // --- 1. อัปโหลด Thumbnail ---
+        const thumbnailUrls = await getUploadUrl(token, form.thumbnailFile);
+        await axios.put(thumbnailUrls.uploadURL, form.thumbnailFile, {
+            headers: { 'Content-Type': form.thumbnailFile.type }
+        });
+        const thumbnailUrl = thumbnailUrls.videoUrl; // URL จริงของภาพปก
 
-        const { uploadURL, videoUrl } = presignedResponse.data;
-
-        // ----- 2. อัปโหลดไฟล์ไป S3 โดยตรง -----
-        await axios.put(uploadURL, form.clip, {
+        // --- 2. อัปโหลด Video ---
+        const videoUrls = await getUploadUrl(token, form.clip);
+        await axios.put(videoUrls.uploadURL, form.clip, {
             headers: { 'Content-Type': form.clip.type }
         });
+        const videoUrl = videoUrls.videoUrl; // URL จริงของวิดีโอ
 
-        // ----- 3. บันทึกข้อมูล (JSON) ลง DB ผ่าน Backend -----
+        // --- 3. บันทึกข้อมูล (JSON) ลง DB ---
         const videoData = {
-            user_id: form.user_id, // (ดึงมาจาก localStorage)
+            user_id: form.user_id,
             sport_id: form.sport_id,
             match_date: form.match_date,
             location: form.location,
@@ -174,9 +206,8 @@ async function handleSubmit() {
             score: form.score,
             notes: form.notes,
             videoSrc: videoUrl,
-            // ⭐️ 4. เพิ่ม Title และ Thumbnail (เพื่อให้ VideoCard ทำงาน) ⭐️
             title: form.title,
-            thumbnail: "https://via.placeholder.com/320x180.png?text=Processing...", // (Placeholder)
+            thumbnail: thumbnailUrl, // ⭐️ ใช้ URL จริงของภาพปก
         };
 
         const dbResponse = await axios.post(
@@ -197,6 +228,9 @@ async function handleSubmit() {
     } catch (error) {
         console.error("Error saving match:", error);
         alert("Error: Could not save match.");
+        if (error.response && error.response.status === 401) {
+            router.push('/login');
+        }
     }
 }
 
@@ -206,6 +240,9 @@ function resetForm() {
 
     if (fileInput.value) {
         fileInput.value.value = "";
+    }
+    if (thumbnailInput.value) {
+        thumbnailInput.value.value = "";
     }
 }
 </script>

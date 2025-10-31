@@ -1,12 +1,6 @@
 <template>
-    <div
-        class="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden"
-    >
-        <img
-            :src="thumbnail"
-            alt="thumbnail"
-            class="w-full h-40 object-cover"
-        />
+    <div class="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden">
+        <img :src="thumbnail" alt="thumbnail" class="w-full h-40 object-cover" />
         <div class="p-3">
             <h3 class="font-semibold text-gray-800 line-clamp-2">
                 {{ title }}

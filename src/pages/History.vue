@@ -33,13 +33,13 @@
                             Opponent:
                             <span class="font-medium">{{
                                 video.opponent
-                            }}</span>
+                                }}</span>
                         </p>
                         <p class="text-sm text-gray-600">
                             Location:
                             <span class="font-medium">{{
                                 video.location
-                            }}</span>
+                                }}</span>
                         </p>
                         <p class="text-sm text-gray-600">
                             result:
@@ -144,7 +144,7 @@ async function deleteItem(id) {
 }
 
 function editItem(video) {
-    // ⭐️ 4. แก้ไข: แปลงชื่อ field ให้ตรงกับที่ EditModal คาดหวัง
+    // ⭐️ แปลงชื่อ field ให้ตรงกับที่ EditModal คาดหวัง
     const itemToEdit = {
         ...video,
         sport: video.sport_id, // แปลง sport_id -> sport
@@ -167,14 +167,13 @@ async function saveChanges(updatedItem) {
         const headers = getAuthHeaders();
         if (!headers) return;
 
-        // ⭐️ 5. แก้ไข: แปลงชื่อ field กลับไปเป็นแบบที่ DB เก็บ (เหมือนใน Upload.vue)
+        // ⭐️ แปลงชื่อ field กลับไปเป็นแบบที่ DB เก็บ
         const itemToSave = {
             ...updatedItem,
             sport_id: updatedItem.sport, // แปลง sport -> sport_id
             notes: updatedItem.note,     // แปลง note -> notes
             match_date: updatedItem.date // แปลง date -> match_date
         };
-        // ลบ field ที่ชื่อไม่ตรงออก (เพื่อความสะอาด)
         delete itemToSave.sport;
         delete itemToSave.note;
         delete itemToSave.date;
@@ -182,11 +181,10 @@ async function saveChanges(updatedItem) {
 
         const response = await axios.put(
             `${import.meta.env.VITE_API_BASE_URL}/api/videos/${itemToSave.id}`,
-            itemToSave, // ส่งข้อมูลที่แปลงชื่อแล้ว
+            itemToSave,
             { headers }
         );
 
-        // ⭐️ 6. แก้ไข: อัปเดตข้อมูลใน list ด้วยข้อมูลที่ได้จาก DB (ซึ่งเป็นชื่อที่ถูกต้อง)
         const index = videoList.value.findIndex((v) => v.id === itemToSave.id);
         if (index !== -1) {
             videoList.value[index] = response.data;
