@@ -33,13 +33,13 @@
                             Opponent:
                             <span class="font-medium">{{
                                 video.opponent
-                                }}</span>
+                            }}</span>
                         </p>
                         <p class="text-sm text-gray-600">
                             Location:
                             <span class="font-medium">{{
                                 video.location
-                                }}</span>
+                            }}</span>
                         </p>
                         <p class="text-sm text-gray-600">
                             result:
@@ -51,9 +51,9 @@
                         </p>
                         <p class="text-xs text-gray-500 mt-1">
                             Date:
-                            {{
-                                new Date(video.match_date).toLocaleDateString("th-TH")
-                            }}
+                            <span v-if="video.match_date">
+                                {{ new Date(video.match_date).toLocaleDateString("th-TH") }}
+                            </span>
                         </p>
                     </div>
 
@@ -144,8 +144,7 @@ async function deleteItem(id) {
 }
 
 function editItem(video) {
-    // ⭐️ 4. แก้ไข: เปลี่ยนชื่อ field ให้ตรงกับข้อมูลจริงตอนส่งให้ Modal ⭐️
-    // (EditModal.vue คาดหวัง 'sport' และ 'note' และ 'date')
+    // ⭐️ 4. แก้ไข: แปลงชื่อ field ให้ตรงกับที่ EditModal คาดหวัง
     const itemToEdit = {
         ...video,
         sport: video.sport_id, // แปลง sport_id -> sport
@@ -168,14 +167,14 @@ async function saveChanges(updatedItem) {
         const headers = getAuthHeaders();
         if (!headers) return;
 
-        // ⭐️ 5. แก้ไข: แปลงชื่อ field กลับไปเป็นแบบที่ DB เก็บ ⭐️
+        // ⭐️ 5. แก้ไข: แปลงชื่อ field กลับไปเป็นแบบที่ DB เก็บ (เหมือนใน Upload.vue)
         const itemToSave = {
             ...updatedItem,
-            sport_id: updatedItem.sport,
-            notes: updatedItem.note,
-            match_date: updatedItem.date
+            sport_id: updatedItem.sport, // แปลง sport -> sport_id
+            notes: updatedItem.note,     // แปลง note -> notes
+            match_date: updatedItem.date // แปลง date -> match_date
         };
-        // ลบ field ที่ชื่อไม่ตรงออก
+        // ลบ field ที่ชื่อไม่ตรงออก (เพื่อความสะอาด)
         delete itemToSave.sport;
         delete itemToSave.note;
         delete itemToSave.date;
@@ -187,9 +186,10 @@ async function saveChanges(updatedItem) {
             { headers }
         );
 
+        // ⭐️ 6. แก้ไข: อัปเดตข้อมูลใน list ด้วยข้อมูลที่ได้จาก DB (ซึ่งเป็นชื่อที่ถูกต้อง)
         const index = videoList.value.findIndex((v) => v.id === itemToSave.id);
         if (index !== -1) {
-            videoList.value[index] = response.data; // รับข้อมูลใหม่จาก DB
+            videoList.value[index] = response.data;
         }
 
         console.log("บันทึกข้อมูล ID:", itemToSave.id);

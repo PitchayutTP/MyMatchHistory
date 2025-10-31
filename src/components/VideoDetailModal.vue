@@ -18,7 +18,7 @@
                 <div class="mb-6 rounded-lg bg-gray-100 p-4 text-center">
                     <span class="text-5xl font-bold text-gray-800">{{
                         video.score
-                        }}</span>
+                    }}</span>
 
                     <span class="ml-2 px-3 py-1 align-middle text-sm font-semibold uppercase tracking-wider" :class="{
                         'rounded-full bg-green-200 text-green-800':
@@ -38,35 +38,35 @@
                         <span class="text-sm font-semibold uppercase text-gray-500">Sport</span>
                         <span class="font-medium text-gray-900">{{
                             video.sport_id
-                            }}</span>
+                        }}</span>
                     </div>
 
                     <div class="flex justify-between">
                         <span class="text-sm font-semibold uppercase text-gray-500">Opponent</span>
                         <span class="font-medium text-gray-900">{{
                             video.opponent
-                            }}</span>
+                        }}</span>
                     </div>
 
                     <div class="flex justify-between">
                         <span class="text-sm font-semibold uppercase text-gray-500">Location</span>
                         <span class="font-medium text-gray-900">{{
                             video.location
-                            }}</span>
+                        }}</span>
                     </div>
 
                     <div class="flex justify-between">
                         <span class="text-sm font-semibold uppercase text-gray-500">Date</span>
                         <span class="font-medium text-gray-900">{{
                             video.match_date
-                            }}</span>
+                        }}</span>
                     </div>
 
                     <div class="flex justify-between">
                         <span class="text-sm font-semibold uppercase text-gray-500">note</span>
                         <span class="font-medium text-gray-900">{{
                             video.notes
-                            }}</span>
+                        }}</span>
                     </div>
                 </div>
 
