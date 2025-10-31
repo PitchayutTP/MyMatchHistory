@@ -42,7 +42,7 @@ const handleRegister = async () => {
     });
 
     // 8. ลงทะเบียนสำเร็จ
-    alert("ลงทะเบียนสำเร็จ! กรุณาตรวจสอบ Email (ถ้ามี) และเข้าสู่ระบบ");
+    alert("ลงทะเบียนสำเร็จ!");
 
     // 9. พาไปหน้า Login
     router.push("/login");
@@ -81,7 +81,6 @@ const handleRegister = async () => {
         <h1 class="text-4xl mb-6 text-center text-orange-600">Register</h1>
 
         <form @submit.prevent="handleRegister">
-          <TextInput label="Username" type="text" placeholder="Enter your username" v-model="username" />
           <TextInput label="Email" type="email" placeholder="Enter your email" v-model="email" />
           <TextInput label="Password" type="password" placeholder="Enter your password" v-model="password"
             class="mb-2" />
