@@ -106,12 +106,6 @@ const handleLogin = async () => {
             v-model="password"
             class="mt-4 mb-2"
           />
-
-          <router-link
-            to="/resetpassword"
-            class="flex text-sm text-gray-500 hover:underline hover:text-orange-500 mt-1 justify-start-safe mb-5"
-            >Forgot password?</router-link
-          >
           
           <p v-if="error" class="text-red-500 text-sm text-center mb-4">
             {{ error }}
