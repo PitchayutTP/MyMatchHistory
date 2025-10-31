@@ -72,6 +72,7 @@ const handleSubmit = async () => {
     );
 
     alert("อัปเดตข้อมูลสำเร็จ!");
+    router.push("/"); 
 
   } catch (err) {
     console.error("Error updating profile:", err);

@@ -193,7 +193,7 @@ async function saveChanges(updatedItem) {
                 </p>
                 <p class="text-sm text-gray-500 mt-1">
                   Date: <span v-if="video.match_date">{{ new Date(video.match_date).toLocaleDateString("th-TH")
-                  }}</span>
+                    }}</span>
                 </p>
               </div>
 
