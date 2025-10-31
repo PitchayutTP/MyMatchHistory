@@ -5,64 +5,55 @@ import bgImage from "../assets/tennis.jpg";
 import { useRouter } from "vue-router";
 import axios from "axios";
 
-// --- State ---
+// --- State (ลบ username ออก) ---
 const email = ref("");
 const password = ref("");
-const username = ref("");
 const confirmPassword = ref("");
 const isLoading = ref(false);
 const error = ref("");
 const router = useRouter();
 
-// --- 4. แก้ไข handleRegister ให้ยิง API ---
 const handleRegister = async () => {
   isLoading.value = true;
   error.value = "";
 
-  // 5. ตรวจสอบรหัสผ่าน (ฝั่ง Client)
+  // 1. ตรวจสอบรหัสผ่าน
   if (password.value !== confirmPassword.value) {
     error.value = "รหัสผ่านและรหัสผ่านยืนยันไม่ตรงกัน";
     isLoading.value = false;
-    return; // หยุดทำงาน
+    return;
   }
 
-  // 6. ตรวจสอบว่ากรอกครบ (เผื่อ)
-  if (!username.value || !email.value || !password.value) {
+  // 2. ตรวจสอบว่ากรอกครบ (ลบ username ออก)
+  if (!email.value || !password.value) {
     error.value = "กรุณากรอกข้อมูลให้ครบถ้วน";
     isLoading.value = false;
     return;
   }
 
   try {
-    // 7. ยิง API (URL ถูกต้องแล้ว)
+    // 3. ยิง API (ลบ username ออก)
     await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/register`, {
-      username: username.value,
       email: email.value,
       password: password.value,
     });
 
-    // 8. ลงทะเบียนสำเร็จ
-    alert("ลงทะเบียนสำเร็จ!");
+    // 4. ลงทะเบียนสำเร็จ
+    alert("ลงทะเบียนสำเร็จ! กรุณาตรวจสอบ Email (ถ้ามี) และเข้าสู่ระบบ");
 
-    // 9. พาไปหน้า Login
+    // 5. พาไปหน้า Login
     router.push("/login");
 
   } catch (err) {
-    // 10. ⭐️ จัดการ Error (ซ่อม Bug แล้ว) ⭐️
+    // 6. จัดการ Error (ซ่อม Bug แล้ว)
     console.error("Register failed:", err);
     if (err.response && err.response.data && err.response.data.detail) {
-      // ถ้า Backend (Lambda) ส่ง {"detail":"..."} มา
       error.value = err.response.data.detail;
-    } else if (err.response && err.response.data) {
-      // ถ้า Backend ส่งอะไรอย่างอื่นมา
-      error.value = JSON.stringify(err.response.data);
     } else {
-      // ถ้าเป็น Network Error
-      error.value = "เกิดข้อผิดพลาดในการลงทะเบียน (Network Error)";
+      error.value = "เกิดข้อผิดพลาดในการลงทะเบียน";
     }
 
   } finally {
-    // 11. สิ้นสุด Loading
     isLoading.value = false;
   }
 };
@@ -70,7 +61,6 @@ const handleRegister = async () => {
 
 <template>
   <div class="h-screen flex flex-col">
-
 
     <div class="flex-1 flex items-center justify-center relative">
       <div class="absolute z-0 inset-0 w-full h-full overflow-hidden">
@@ -81,9 +71,12 @@ const handleRegister = async () => {
         <h1 class="text-4xl mb-6 text-center text-orange-600">Register</h1>
 
         <form @submit.prevent="handleRegister">
+
           <TextInput label="Email" type="email" placeholder="Enter your email" v-model="email" />
+
           <TextInput label="Password" type="password" placeholder="Enter your password" v-model="password"
             class="mb-2" />
+
           <TextInput label="Confirm Password" type="password" placeholder="Confirm your password"
             v-model="confirmPassword" class="mb-2" />
 

@@ -5,8 +5,8 @@ import bgImage from "../assets/tennis.jpg";
 import { useRouter } from "vue-router";
 import axios from "axios";
 
-// --- State ---
-const username = ref("");
+// --- State (⭐️ 1. เปลี่ยน username เป็น email) ---
+const email = ref("");
 const password = ref("");
 const confirmPassword = ref("");
 const isLoading = ref(false);
@@ -26,9 +26,9 @@ const handleResetPassword = async () => {
   }
 
   try {
-    // 2. ยิง API ไปยัง Mock Server (ใช้ path ที่เราจะสร้าง)
+    // 2. ⭐️ ส่ง email.value ใน key ที่ชื่อ "username" (เพราะ Backend Lambda คาดหวัง key นี้)
     await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/reset-password`, {
-      username: username.value,
+      username: email.value, // ⭐️ ส่ง email ไปใน field username
       password: password.value,
     });
 
@@ -42,7 +42,7 @@ const handleResetPassword = async () => {
     if (err.response && err.response.data && err.response.data.detail) {
       error.value = err.response.data.detail;
     } else {
-      error.value = "เกิดข้อผิดพลาด หรือไม่พบชื่อผู้ใช้นี้ในระบบ";
+      error.value = "เกิดข้อผิดพลาด หรือไม่พบอีเมลนี้ในระบบ";
     }
   } finally {
     isLoading.value = false;
@@ -52,67 +52,37 @@ const handleResetPassword = async () => {
 
 <template>
   <div class="h-screen flex flex-col">
+    <nav class="bg-white-100 h-20"></nav>
 
-    <div
-      class="flex-1 flex items-center justify-center relative" 
-      >
-      <div
-        class="absolute z-0 inset-0 w-full h-full overflow-hidden"
-      >
-        <img
-          :src="bgImage"
-          alt="Background Banner"
-          class="w-full h-full object-cover"
-        />
+    <div class="flex-1 flex items-center justify-center relative">
+      <div class="absolute z-0 inset-0 w-full h-full overflow-hidden">
+        <img :src="bgImage" alt="Background Banner" class="w-full h-full object-cover" />
       </div>
 
-      <div
-        class="relative z-10 p-10 w-sm h-120 rounded-sm max-w-md bg-white shadow-2xl"
-      >
+      <div class="relative z-10 p-10 w-sm h-120 rounded-sm max-w-md bg-white shadow-2xl">
         <h1 class="text-4xl mb-6 text-center text-orange-600 mt-5">Reset Password</h1>
 
         <form @submit.prevent="handleResetPassword">
-          <TextInput
-            label="Username"
-            type="text"
-            placeholder="Enter your username"
-            v-model="username"
-          />
 
-          <TextInput
-            label="New Password"
-            type="password"
-            placeholder="Enter your new password"
-            v-model="password"
-            class="mt-4 mb-2"
-          />
-          <TextInput
-            label="Confirm New Password"
-            type="password"
-            placeholder="Confirm your new password"
-            v-model="confirmPassword"
-            class="mt-4 mb-2"
-          />
+          <TextInput label="Email" type="email" placeholder="Enter your email" v-model="email" />
+
+          <TextInput label="New Password" type="password" placeholder="Enter your new password" v-model="password"
+            class="mt-4 mb-2" />
+          <TextInput label="Confirm New Password" type="password" placeholder="Confirm your new password"
+            v-model="confirmPassword" class="mt-4 mb-2" />
 
           <p v-if="error" class="text-red-500 text-sm text-center my-4">
             {{ error }}
           </p>
 
-          <button
-            type="submit"
-            :disabled="isLoading"
-            class="w-full bg-orange-500 text-white py-2 rounded-sm hover:bg-orange-600 transition-colors mt-4
-                   disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
+          <button type="submit" :disabled="isLoading" class="w-full bg-orange-500 text-white py-2 rounded-sm hover:bg-orange-600 transition-colors mt-4
+                   disabled:bg-gray-400 disabled:cursor-not-allowed">
             <span v-if="isLoading">กำลังอัปเดต...</span>
             <span v-else>Reset Password</span>
           </button>
         </form>
-        <router-link
-          to="/login"
-          class="flex text-sm text-gray-500 hover:underline hover:text-orange-500 mt-1 justify-end-safe"
-          >Login</router-link
-        >
+        <router-link to="/login"
+          class="flex text-sm text-gray-500 hover:underline hover:text-orange-500 mt-1 justify-end-safe">Login</router-link>
       </div>
     </div>
   </div>
