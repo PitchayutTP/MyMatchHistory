@@ -5,6 +5,9 @@
             <h3 class="font-semibold text-gray-800 line-clamp-2">
                 {{ title }}
             </h3>
+            <p class="text-xs text-gray-500 mt-1 truncate" :title="uploaderEmail">
+                {{ uploaderEmail }}
+            </p>
         </div>
     </div>
 </template>
@@ -13,6 +16,7 @@
 defineProps({
     title: String,
     thumbnail: String,
+    uploaderEmail: String, // ⭐️ 2. เพิ่ม Prop นี้เพื่อรับ Email ⭐️
 });
 </script>
 

@@ -3,8 +3,10 @@
         <Navbar @upload="showUpload = true" v-model:search="searchTerm" />
 
         <div class="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+
             <VideoCard v-for="video in filteredVideos" :key="video.id" :title="video.title" :thumbnail="video.thumbnail"
-                @click="openVideoDetail(video)" class="cursor-pointer transition-transform hover:scale-105" />
+                :uploaderEmail="video.uploaderEmail" @click="openVideoDetail(video)"
+                class="cursor-pointer transition-transform hover:scale-105" />
         </div>
 
         <VideoDetailModal v-if="showVideoDetail && selectedVideo" :video="selectedVideo" @close="closeVideoDetail" />
@@ -13,7 +15,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import { useRouter } from "vue-router"; // ⭐️ เพิ่ม useRouter
+import { useRouter } from "vue-router";
 import axios from "axios";
 import Navbar from "../components/Navbar.vue";
 import VideoCard from "../components/VideoCard.vue";
@@ -23,7 +25,7 @@ const showVideoDetail = ref(false);
 const selectedVideo = ref(null);
 const videos = ref([]);
 const searchTerm = ref("");
-const router = useRouter(); // ⭐️ เพิ่ม useRouter
+const router = useRouter();
 
 const filteredVideos = computed(() => {
     if (!searchTerm.value) {
@@ -36,14 +38,12 @@ const filteredVideos = computed(() => {
 
 async function fetchVideos() {
     try {
-        // ⭐️ 1. ดึง Token
         const token = localStorage.getItem("authToken");
         if (!token) {
             router.push('/login');
             return;
         }
 
-        // ⭐️ 2. ส่ง Token ไปใน Header
         const response = await axios.get(
             `${import.meta.env.VITE_API_BASE_URL}/api/videos`,
             {
@@ -52,6 +52,7 @@ async function fetchVideos() {
                 }
             }
         );
+        // ⭐️ 2. ข้อมูลที่ได้กลับมาจะมี uploaderEmail พ่วงมาด้วย ⭐️
         videos.value = response.data;
     } catch (error) {
         console.error("Error fetching videos:", error);
