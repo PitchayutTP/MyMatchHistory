@@ -227,6 +227,7 @@ async function handleSubmit() {
         alert("Match record saved!");
         emit("uploaded", dbResponse.data);
         resetForm();
+        router.push("/");
 
     } catch (error) {
         console.error("Error saving match:", error);

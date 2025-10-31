@@ -31,15 +31,15 @@ const handleLogin = async () => {
     });
 
     const { token, user } = response.data;
-
+    
     localStorage.setItem("authToken", token);
-    localStorage.setItem("userId", user.id);
+    localStorage.setItem("userId", user.id); 
 
     // ⭐️ 2. ตรวจสอบสิทธิ์ Admin ⭐️
     try {
       const decodedToken = jwtDecode(token);
       const groups = decodedToken['cognito:groups'] || [];
-
+      
       if (groups.includes('Admins')) {
         localStorage.setItem("isAdmin", "true"); // ⭐️ ตั้งค่า Admin
       } else {
@@ -51,7 +51,7 @@ const handleLogin = async () => {
     }
 
     // 10. พาไปหน้าหลัก
-    router.push("/");
+    router.push("/"); 
 
   } catch (err) {
     // 11. จัดการ Error
@@ -59,7 +59,7 @@ const handleLogin = async () => {
     if (err.response && err.response.status === 401) {
       error.value = "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
     } else if (err.response && err.response.data && err.response.data.detail) {
-      error.value = err.response.data.detail;
+      error.value = err.response.data.detail; 
     } else {
       error.value = "เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง";
     }
@@ -72,38 +72,66 @@ const handleLogin = async () => {
 <template>
   <div class="h-screen flex flex-col">
 
-    <div class="flex-1 flex items-center justify-center relative">
-      <div class="absolute z-0 inset-0 w-full h-full overflow-hidden">
-        <img :src="bgImage" alt="Background Banner" class="w-full h-full object-cover" />
+    <div
+      class="flex-1 flex items-center justify-center relative" 
+      >
+      <div
+        class="absolute z-0 inset-0 w-full h-full overflow-hidden"
+      >
+        <img
+          :src="bgImage"
+          alt="Background Banner"
+          class="w-full h-full object-cover"
+        />
       </div>
 
-      <div class="relative z-10 p-10 w-sm h-120 rounded-sm max-w-md bg-white shadow-2xl">
+      <div
+        class="relative z-10 p-10 w-sm h-120 rounded-sm max-w-md bg-white shadow-2xl"
+      >
         <h1 class="text-4xl mb-6 text-center text-orange-600 mt-5">Login</h1>
 
         <form @submit.prevent="handleLogin">
+          
+          <TextInput
+            label="Email"
+            type="email"
+            placeholder="Enter your email"
+            v-model="email"
+          />
 
-          <TextInput label="Email" type="email" placeholder="Enter your email" v-model="email" />
+          <TextInput
+            label="Password"
+            type="password"
+            placeholder="Enter your password"
+            v-model="password"
+            class="mt-4 mb-2"
+          />
 
-          <TextInput label="Password" type="password" placeholder="Enter your password" v-model="password"
-            class="mt-4 mb-2" />
-
-          <router-link to="/resetpassword"
-            class="flex text-sm text-gray-500 hover:underline hover:text-orange-500 mt-1 justify-start-safe mb-5">Forgot
-            password?</router-link>
-
+          <router-link
+            to="/resetpassword"
+            class="flex text-sm text-gray-500 hover:underline hover:text-orange-500 mt-1 justify-start-safe mb-5"
+            >Forgot password?</router-link
+          >
+          
           <p v-if="error" class="text-red-500 text-sm text-center mb-4">
             {{ error }}
           </p>
 
-          <button type="submit" :disabled="isLoading" class="w-full bg-orange-500 text-white py-2 rounded-sm hover:bg-orange-600 transition-colors mt-4
-                   disabled:bg-gray-400 disabled:cursor-not-allowed">
+          <button
+            type="submit"
+            :disabled="isLoading" 
+            class="w-full bg-orange-500 text-white py-2 rounded-sm hover:bg-orange-600 transition-colors mt-4
+                   disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
             <span v-if="isLoading">กำลังเข้าสู่ระบบ...</span>
             <span v-else>Login</span>
           </button>
         </form>
-        <router-link to="/register"
-          class="flex text-sm text-gray-500 hover:underline hover:text-orange-500 mt-1 justify-end-safe">Don't have an
-          account? Register</router-link>
+        <router-link
+          to="/register"
+          class="flex text-sm text-gray-500 hover:underline hover:text-orange-500 mt-1 justify-end-safe"
+          >Don't have an account? Register</router-link
+        >
       </div>
     </div>
   </div>
