@@ -1,4 +1,5 @@
 <template>
+    <Navbar @upload="showUpload = true" v-model:search="searchTerm" />
     <div class="max-w-2xl mx-auto bg-white shadow-md rounded-xl p-6 space-y-4">
         <h2 class="text-2xl font-bold text-gray-800 mb-4">Match Form</h2>
 
@@ -64,7 +65,8 @@
             </div>
 
             <div>
-                <label for="thumbnail" class="block text-sm font-medium text-gray-700">อัพโหลดภาพปก (Thumbnail)</label>
+                <label for="thumbnail" class="block text-sm font-medium text-gray-700">อัพโหลดภาพปก
+                    (Thumbnail)</label>
                 <input id="thumbnail" ref="thumbnailInput" type="file" accept="image/*" @change="handleThumbnailChange"
                     class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 cursor-pointer" />
             </div>
@@ -92,6 +94,7 @@
 <script setup>
 import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
+import Navbar from "../components/Navbar.vue";
 import axios from "axios";
 
 const fileInput = ref(null);

@@ -1,4 +1,5 @@
 <template>
+    <Navbar @upload="showUpload = true" v-model:search="searchTerm" />
     <div class="min-h-screen bg-gray-100 p-4 md:p-8">
         <div class="max-w-4xl mx-auto bg-white p-4 md:p-6 rounded-lg shadow-md">
             <div class="flex justify-between items-center border-b pb-4 mb-6">
@@ -33,13 +34,13 @@
                             Opponent:
                             <span class="font-medium">{{
                                 video.opponent
-                            }}</span>
+                                }}</span>
                         </p>
                         <p class="text-sm text-gray-600">
                             Location:
                             <span class="font-medium">{{
                                 video.location
-                            }}</span>
+                                }}</span>
                         </p>
                         <p class="text-sm text-gray-600">
                             result:
@@ -79,6 +80,7 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
+import Navbar from "../components/Navbar.vue";
 import EditModal from "../components/EditModal.vue";
 
 const videoList = ref([]);
