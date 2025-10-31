@@ -52,7 +52,6 @@ const handleResetPassword = async () => {
 
 <template>
   <div class="h-screen flex flex-col">
-    <nav class="bg-white-100 h-20"></nav>
 
     <div class="flex-1 flex items-center justify-center relative">
       <div class="absolute z-0 inset-0 w-full h-full overflow-hidden">
